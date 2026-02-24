@@ -34,7 +34,7 @@ import org.onecx.document.management.domain.daos.DocumentDAO;
 import org.onecx.document.management.domain.daos.MinioAuditLogDAO;
 import org.onecx.document.management.domain.daos.StorageUploadAuditDAO;
 import org.onecx.document.management.domain.models.entities.*;
-import org.onecx.document.management.rs.v1.RestException;
+import org.onecx.document.management.rs.v1.exception.RestException;
 import org.onecx.document.management.rs.v1.mappers.DocumentMapper;
 import org.onecx.document.management.rs.v1.services.DocumentService;
 import org.tkit.quarkus.jpa.daos.PageResult;

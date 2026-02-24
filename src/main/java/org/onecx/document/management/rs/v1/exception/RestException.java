@@ -1,4 +1,4 @@
-package org.onecx.document.management.rs.v1;
+package org.onecx.document.management.rs.v1.exception;
 
 import java.util.ArrayList;
 import java.util.Collections;

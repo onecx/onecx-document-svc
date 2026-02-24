@@ -10,12 +10,11 @@ import jakarta.ws.rs.core.Response;
 
 import org.onecx.document.management.domain.daos.DocumentDAO;
 import org.onecx.document.management.domain.daos.DocumentSpecificationDAO;
-import org.onecx.document.management.rs.v1.RestException;
+import org.onecx.document.management.rs.v1.exception.RestException;
 import org.onecx.document.management.rs.v1.mappers.DocumentSpecificationMapper;
 
 import gen.org.onecx.document.management.rs.v1.DocumentSpecificationControllerV1Api;
 import gen.org.onecx.document.management.rs.v1.model.DocumentSpecificationCreateUpdateDTO;
-import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class DocumentSpecificationController implements DocumentSpecificationControllerV1Api {

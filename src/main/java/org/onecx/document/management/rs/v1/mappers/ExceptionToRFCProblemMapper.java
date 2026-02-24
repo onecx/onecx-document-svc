@@ -1,4 +1,4 @@
-package org.onecx.document.management.rs.v1;
+package org.onecx.document.management.rs.v1.mappers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,11 +13,11 @@ import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+import org.onecx.document.management.rs.v1.exception.RestException;
 import org.onecx.document.management.rs.v1.models.RFCProblemDTO;
 import org.tkit.quarkus.jpa.exceptions.DAOException;
 
 import gen.org.onecx.document.management.rs.v1.model.RFCProblemDetailDTO;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Maps exceptions thrown in application to Response with RFCProblem.

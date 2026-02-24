@@ -41,8 +41,8 @@ import org.onecx.document.management.domain.models.entities.RelatedPartyRef;
 import org.onecx.document.management.domain.models.entities.StorageUploadAudit;
 import org.onecx.document.management.domain.models.entities.SupportedMimeType;
 import org.onecx.document.management.domain.models.enums.AttachmentUnit;
-import org.onecx.document.management.rs.v1.CustomException;
-import org.onecx.document.management.rs.v1.RestException;
+import org.onecx.document.management.rs.v1.exception.CustomException;
+import org.onecx.document.management.rs.v1.exception.RestException;
 import org.onecx.document.management.rs.v1.mappers.DocumentMapper;
 import org.onecx.document.management.rs.v1.mappers.DocumentSpecificationMapper;
 import org.tkit.quarkus.jpa.models.TraceableEntity;
@@ -59,10 +59,8 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
-import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Document service.

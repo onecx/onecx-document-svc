@@ -9,12 +9,11 @@ import jakarta.ws.rs.core.Response;
 
 import org.onecx.document.management.domain.daos.AttachmentDAO;
 import org.onecx.document.management.domain.daos.SupportedMimeTypeDAO;
-import org.onecx.document.management.rs.v1.RestException;
+import org.onecx.document.management.rs.v1.exception.RestException;
 import org.onecx.document.management.rs.v1.mappers.SupportedMimeTypeMapper;
 
 import gen.org.onecx.document.management.rs.v1.SupportedMimeTypeControllerV1Api;
 import gen.org.onecx.document.management.rs.v1.model.SupportedMimeTypeCreateUpdateDTO;
-import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class SupportedMimeTypeController implements SupportedMimeTypeControllerV1Api {

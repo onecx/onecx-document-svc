@@ -9,12 +9,11 @@ import jakarta.ws.rs.core.Response;
 
 import org.onecx.document.management.domain.daos.DocumentDAO;
 import org.onecx.document.management.domain.daos.DocumentTypeDAO;
-import org.onecx.document.management.rs.v1.RestException;
+import org.onecx.document.management.rs.v1.exception.RestException;
 import org.onecx.document.management.rs.v1.mappers.DocumentTypeMapper;
 
 import gen.org.onecx.document.management.rs.v1.DocumentTypeControllerV1Api;
 import gen.org.onecx.document.management.rs.v1.model.DocumentTypeCreateUpdateDTO;
-import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class DocumentTypeController implements DocumentTypeControllerV1Api {

@@ -15,8 +15,8 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.onecx.document.management.rs.v1.ExceptionToRFCProblemMapper;
-import org.onecx.document.management.rs.v1.ValidationExceptionToRFCProblemMapper;
+import org.onecx.document.management.rs.v1.mappers.ExceptionToRFCProblemMapper;
+import org.onecx.document.management.rs.v1.mappers.ValidationExceptionToRFCProblemMapper;
 import org.onecx.document.management.rs.v1.models.RFCProblemDTO;
 import org.onecx.document.management.test.AbstractTest;
 import org.tkit.quarkus.security.test.GenerateKeycloakClient;

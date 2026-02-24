@@ -9,13 +9,12 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
-import org.onecx.document.management.rs.v1.RestException;
+import org.onecx.document.management.rs.v1.exception.RestException;
 import org.onecx.document.management.rs.v1.services.FileService;
 
 import gen.org.onecx.document.management.rs.v1.FileControllerV1Api;
 import gen.org.onecx.document.management.rs.v1.model.FileInfoDTO;
 import io.minio.GetObjectResponse;
-import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class FileController implements FileControllerV1Api {
