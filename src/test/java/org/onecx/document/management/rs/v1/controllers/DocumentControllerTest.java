@@ -43,6 +43,8 @@ import io.restassured.response.Response;
 class DocumentControllerTest extends AbstractTest {
 
     private static final String BASE_PATH = "/v1/document";
+    private static final String SEARCH_PATH = BASE_PATH + "/search";
+    private static final String SHOW_ALL_DOCUMENTS_PATH = SEARCH_PATH + "/show-all-documents";
     private static final String EXISTING_DOCUMENT_ID = "51";
     private static final String EXISTING_DOCUMENT_ID_WITHOUT_ATTACHMENTS = "53";
     private static final String NONEXISTENT_DOCUMENT_ID = "1000";
@@ -103,12 +105,15 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Returns all documents with no criteria given.")
     void testSuccessfulGetWithoutCriteria() {
+        var criteria = new DocumentSearchCriteriaDTO();
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -118,13 +123,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Returns all documents with no criteria given with set page size.")
     void testSuccessfulGetWithoutCriteriaWithPageSize() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setPageSize(1);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("size", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -134,14 +142,17 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Returns all documents with no criteria given with set page size and given page number.")
     void testSuccessfulGetWithoutCriteriaWithPageSizeAndPageNumber() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setPageNumber(1);
+        criteria.setPageSize(1);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("size", 1)
-                .queryParam("page", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -218,13 +229,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds document by id.")
     void testSuccessfulSearchCriteriaFindDocumentById() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.id(EXISTING_DOCUMENT_ID);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("id", EXISTING_DOCUMENT_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -235,13 +249,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by id.")
     void testSuccessfulSearchCriteriaFindAllDocumentsById() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setId(EXISTING_DOCUMENT_ID);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("id", EXISTING_DOCUMENT_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         // List<DocumentDetailDTO> documents = response.as(List);
@@ -253,13 +270,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Returns empty list when trying to find documents for nonexistent param.")
     void testSuccessfulSearchCriteriaFindDocumentsByNonExistentParam() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setId(NONEXISTENT_DOCUMENT_ID);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("id", NONEXISTENT_DOCUMENT_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -269,13 +289,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Returns empty list when trying to find all documents for nonexistent param.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByNonExistentParam() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setId(NONEXISTENT_DOCUMENT_ID);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("id", NONEXISTENT_DOCUMENT_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -285,13 +308,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by name.")
     void testSuccessfulSearchCriteriaFindDocumentsByName() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.name(NAME_OF_DOCUMENT_1);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("name", NAME_OF_DOCUMENT_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -302,13 +328,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by name.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByName() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setName(NAME_OF_DOCUMENT_1);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("name", NAME_OF_DOCUMENT_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -319,13 +348,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by blank name. It should return all documents.")
     void testSuccessfulSearchCriteriaFindDocumentsByBlankName() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setName("");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("name", "")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -335,13 +367,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by first letters of name.")
     void testSuccessfulSearchCriteriaFindDocumentsByFirstLetterOfName() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setName("docu");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("name", "docu")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -352,13 +387,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by first letters of name.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByFirstLetterOfName() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setName("docu");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("name", "docu")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -369,13 +407,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by state.")
     void testSuccessfulSearchCriteriaFindDocumentsByState() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setLifeCycleState(List.of(STATUS_OF_DOCUMENT_1));
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("state", STATUS_OF_DOCUMENT_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -387,13 +428,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by state.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByState() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setLifeCycleState(List.of(STATUS_OF_DOCUMENT_1));
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("state", STATUS_OF_DOCUMENT_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -404,13 +448,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by type.")
     void testSuccessfulSearchCriteriaFindDocumentsByType() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setDocumentTypeId(List.of(TYPE_ID_OF_DOCUMENT_1));
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("typeId", TYPE_ID_OF_DOCUMENT_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -422,13 +469,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by type.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByType() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setDocumentTypeId(List.of(TYPE_ID_OF_DOCUMENT_1));
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("typeId", TYPE_ID_OF_DOCUMENT_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -439,13 +489,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by channel.")
     void testSuccessfulSearchCriteriaFindDocumentsByChannel() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setChannelName("channel_1");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("channelName", "channel_1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -457,13 +510,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by channel.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByChannel() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setChannelName("channel_1");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("channelName", "channel_1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -475,13 +531,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by creation user.")
     void testSuccessfulSearchCriteriaFindDocumentsByCreationUser() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setCreateBy(DOCUMENT_CREATION_USER);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("createdBy", DOCUMENT_CREATION_USER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -493,13 +552,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by creation user.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByCreationUser() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setCreateBy(DOCUMENT_CREATION_USER);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("createdBy", DOCUMENT_CREATION_USER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -511,13 +573,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by related object reference ID.")
     void testSuccessfulSearchCriteriaFindDocumentsByObjectRefId() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setObjectReferenceId(RELATED_OBJECT_REF_ID_OF_DOCUMENT);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("objectReferenceId", RELATED_OBJECT_REF_ID_OF_DOCUMENT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -529,13 +594,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by related object reference ID.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByObjectRefId() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setObjectReferenceId(RELATED_OBJECT_REF_ID_OF_DOCUMENT);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("objectReferenceId", RELATED_OBJECT_REF_ID_OF_DOCUMENT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -547,13 +615,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by related object reference type.")
     void testSuccessfulSearchCriteriaFindDocumentsByObjectRefType() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setObjectReferenceType(RELATED_OBJECT_REF_TYPE_OF_DOCUMENT);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("objectReferenceType", RELATED_OBJECT_REF_TYPE_OF_DOCUMENT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -565,13 +636,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by related object reference type.")
     void testSuccessfulSearchCriteriaFindAllDocumentsByObjectRefType() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setObjectReferenceType(RELATED_OBJECT_REF_TYPE_OF_DOCUMENT);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("objectReferenceType", RELATED_OBJECT_REF_TYPE_OF_DOCUMENT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -583,13 +657,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by Start Date")
     void testSuccessfulSearchCriteriaFindDocumentsByStartDate() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setStartDate("2023-05-14 00:00");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("startDate", "2023-05-14 00:00")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -599,13 +676,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by Start Date")
     void testSuccessfulSearchCriteriaFindAllDocumentsByStartDate() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setStartDate("2023-05-14 00:00");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("startDate", "2023-05-14 00:00")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -615,13 +695,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by Start Date Null")
     void testSuccessfulSearchCriteriaFindDocumentsByStartDateNull() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setStartDate(null);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("startDate", (Object) null)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -631,13 +714,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by Start Date Null")
     void testSuccessfulSearchCriteriaFindAllDocumentsByStartDateNull() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setStartDate(null);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("startDate", (Object) null)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -647,13 +733,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by End Date")
     void testSuccessfulSearchCriteriaFindDocumentsByEndDate() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setEndDate("2023-05-14 00:00");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("endDate", "2023-05-14 00:00")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -663,13 +752,16 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by End Date")
     void testSuccessfulSearchCriteriaFindAllDocumentsByEndDate() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setEndDate("2023-05-14 00:00");
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("endDate", "2023-05-14 00:00")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -679,15 +771,17 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds documents by End Date Null")
     void testSuccessfulSearchCriteriaFindDocumentsByEndDateNull() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setStartDate("2023-05-14 00:00");
+        criteria.setEndDate(null);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("startDate", "2023-05-14 00:00")
-                .queryParam("endDate", "2023-05-14 00:00")
-                .queryParam("endDate", (Object) null)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -697,15 +791,17 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds all documents by End Date Null")
     void testSuccessfulSearchCriteriaFindAllDocumentsByEndDateNull() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setStartDate("2023-05-14 00:00");
+        criteria.setEndDate(null);
         Response response = given()
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("startDate", "2023-05-14 00:00")
-                .queryParam("endDate", "2023-05-14 00:00")
-                .queryParam("endDate", (Object) null)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH + "/show-all-documents");
+                .post(SHOW_ALL_DOCUMENTS_PATH);
 
         response.then().statusCode(200);
         List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
@@ -735,12 +831,15 @@ class DocumentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Search criteria. Finds failed attachment by id.")
     void testSuccessfulGetFailedAttachmentById() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setId(EXISTING_DOCUMENT_ID);
         Response response = given().auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
-                .queryParam("id", EXISTING_DOCUMENT_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(criteria)
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
 
         response.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
@@ -762,8 +861,10 @@ class DocumentControllerTest extends AbstractTest {
                 .auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new DocumentSearchCriteriaDTO())
                 .when()
-                .get(BASE_PATH);
+                .post(SEARCH_PATH);
         getResponse.then().statusCode(200);
         PageResultDTO<DocumentDetailDTO> documents = getResponse.as(getDocumentDetailDTOTypeRef());
         assertThat(documents.getStream()).hasSize(7);

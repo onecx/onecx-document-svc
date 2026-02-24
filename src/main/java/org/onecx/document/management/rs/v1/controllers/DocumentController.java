@@ -43,7 +43,6 @@ import gen.org.onecx.document.management.rs.v1.DocumentControllerV1Api;
 import gen.org.onecx.document.management.rs.v1.model.DocumentCreateUpdateDTO;
 import gen.org.onecx.document.management.rs.v1.model.DocumentResponseDTO;
 import gen.org.onecx.document.management.rs.v1.model.DocumentSearchCriteriaDTO;
-import gen.org.onecx.document.management.rs.v1.model.LifeCycleStateDTO;
 import io.minio.errors.*;
 import io.quarkus.logging.Log;
 import io.quarkus.scheduler.Scheduled;
@@ -127,23 +126,8 @@ public class DocumentController implements DocumentControllerV1Api {
 
     @Override
     @Transactional
-    public Response getDocumentByCriteria(String channelName, String createdBy, String endDate, String id, String name,
-            String objectReferenceId, String objectReferenceType, Integer page, Integer size, String startDate,
-            List<LifeCycleStateDTO> state, List<String> typeId) {
+    public Response getDocumentByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         Log.info(CLASS_NAME, "Entered getDocumentByCriteria method", null);
-        DocumentSearchCriteriaDTO criteriaDTO = new DocumentSearchCriteriaDTO();
-        criteriaDTO.setChannelName(channelName);
-        criteriaDTO.setCreateBy(createdBy);
-        criteriaDTO.setEndDate(endDate);
-        criteriaDTO.setId(id);
-        criteriaDTO.setName(name);
-        criteriaDTO.setObjectReferenceId(objectReferenceId);
-        criteriaDTO.setObjectReferenceType(objectReferenceType);
-        Optional.ofNullable(page).ifPresent(criteriaDTO::setPageNumber);
-        Optional.ofNullable(size).ifPresent(criteriaDTO::setPageSize);
-        criteriaDTO.setStartDate(startDate);
-        criteriaDTO.setLifeCycleState(state);
-        criteriaDTO.setDocumentTypeId(typeId);
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
         if (Objects.nonNull(criteriaDTO.getStartDate()) && !criteriaDTO.getStartDate().isEmpty()) { // added this for
                                                                                                     // date search
@@ -426,23 +410,7 @@ public class DocumentController implements DocumentControllerV1Api {
 
     @Override
     @Transactional
-    public Response showAllDocumentsByCriteria(String channelName, String createdBy, String endDate, String id, String name,
-            String objectReferenceId, String objectReferenceType, Integer page, Integer size, String startDate,
-            List<LifeCycleStateDTO> state, List<String> typeId) {
-        Log.info(CLASS_NAME, "Entered showAllDocumentsByCriteria method", null);
-        DocumentSearchCriteriaDTO criteriaDTO = new DocumentSearchCriteriaDTO();
-        criteriaDTO.setChannelName(channelName);
-        criteriaDTO.setCreateBy(createdBy);
-        criteriaDTO.setEndDate(endDate);
-        criteriaDTO.setId(id);
-        criteriaDTO.setName(name);
-        criteriaDTO.setObjectReferenceId(objectReferenceId);
-        criteriaDTO.setObjectReferenceType(objectReferenceType);
-        Optional.ofNullable(page).ifPresent(criteriaDTO::setPageNumber);
-        Optional.ofNullable(size).ifPresent(criteriaDTO::setPageSize);
-        criteriaDTO.setStartDate(startDate);
-        criteriaDTO.setLifeCycleState(state);
-        criteriaDTO.setDocumentTypeId(typeId);
+    public Response showAllDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
         if (Objects.nonNull(criteriaDTO.getStartDate()) && !criteriaDTO.getStartDate().isEmpty()) {
 
@@ -453,7 +421,6 @@ public class DocumentController implements DocumentControllerV1Api {
             criteria.setEndDate(LocalDateTime.parse(criteriaDTO.getEndDate(), CUSTOM_DATE_TIME_FORMATTER));
         }
         List<Document> documents = documentDAO.findAllDocumentsBySearchCriteria(criteria);
-        Log.info(CLASS_NAME, "Exited showAllDocumentsByCriteria method", null);
         return Response.ok(documentMapper.mapDocuments(documents))
                 .build();
     }
