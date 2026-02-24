@@ -77,8 +77,6 @@ public class DocumentController implements DocumentControllerV1Api {
     // Content-Disposition header value.
     public static final String ATTACHMENT_ZIP_CONTENT_DISPOSITION_HEADER = "attachment; filename=\"attachments.zip\"";
 
-    private static final String CLASS_NAME = "DocumentController";
-
     /**
      * This scheduler gets triggered at every Saturday at 23:00 hours
      * This scheduler deletes all the records from the "dm_attachment" table
@@ -113,12 +111,10 @@ public class DocumentController implements DocumentControllerV1Api {
 
     @Override
     public Response getDocumentById(String id) {
-        Log.info(CLASS_NAME, "Entered getDocumentById method", null);
         var document = documentDAO.findDocumentById(id);
         if (Objects.isNull(document)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND, getDocumentNotFoundMsg(id));
         }
-        Log.info(CLASS_NAME, "Exited getDocumentById method", null);
         return Response.status(Response.Status.OK)
                 .entity(documentMapper.mapDetail(document))
                 .build();
@@ -127,7 +123,6 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response getDocumentByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
-        Log.info(CLASS_NAME, "Entered getDocumentByCriteria method", null);
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
         if (Objects.nonNull(criteriaDTO.getStartDate()) && !criteriaDTO.getStartDate().isEmpty()) { // added this for
                                                                                                     // date search
@@ -139,7 +134,6 @@ public class DocumentController implements DocumentControllerV1Api {
             criteria.setEndDate(LocalDateTime.parse(criteriaDTO.getEndDate(), CUSTOM_DATE_TIME_FORMATTER));
         }
         PageResult<Document> documents = documentDAO.findBySearchCriteria(criteria);
-        Log.info(CLASS_NAME, "Exited getDocumentByCriteria method", null);
         return Response.ok(documentMapper.mapToPageResultDTO(documents))
                 .build();
     }
@@ -147,7 +141,6 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response deleteDocumentById(String id) {
-        Log.info(CLASS_NAME, "Entered deleteDocumentById method", null);
         List<String> listOfFilesIdToBeDeleted = new ArrayList<>();
         var document = documentDAO.findById(id);
         if (Objects.isNull(document)) {
@@ -156,15 +149,12 @@ public class DocumentController implements DocumentControllerV1Api {
         listOfFilesIdToBeDeleted.addAll(documentService.getFilesIdToBeDeletedInDocument(document));
         documentDAO.delete(document);
         listOfFilesIdToBeDeleted.stream().forEach(eachFileId -> documentService.asyncDeleteForAttachments(eachFileId));
-        Log.info(CLASS_NAME, "Exited deleteDocumentById method", null);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @Override
     public Response createDocument(DocumentCreateUpdateDTO documentCreateUpdateDTO) {
-        Log.info(CLASS_NAME, "Entered createDocument method", null);
         var document = documentService.createDocument(documentCreateUpdateDTO);
-        Log.info(CLASS_NAME, "Exited createDocument method", null);
         return Response.status(Response.Status.CREATED)
                 .entity(documentMapper.mapDetail(document))
                 .build();
@@ -172,7 +162,6 @@ public class DocumentController implements DocumentControllerV1Api {
 
     @Override
     public Response uploadAllFiles(String documentId, MultipartFormDataInput input) {
-        Log.info(CLASS_NAME, "Entered multipleFileUploads method", null);
         Map<String, Integer> map = null;
         try {
             map = documentService.uploadAttachment(documentId, input);
@@ -181,7 +170,6 @@ public class DocumentController implements DocumentControllerV1Api {
         }
         var responseDTO = new DocumentResponseDTO();
         responseDTO.setAttachmentResponse(map);
-        Log.info(CLASS_NAME, "Exited multipleFileUploads method", null);
         return Response.status(Response.Status.CREATED)
                 .entity(responseDTO)
                 .build();
@@ -190,10 +178,8 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response getFailedAttachmentData(String documentId) {
-        Log.info(CLASS_NAME, "Entered getFailedAttachmentById method", null);
         List<StorageUploadAudit> failedAttachmentList = storageUploadAuditDAO
                 .findFailedAttachmentsByDocumentId(documentId);
-        Log.info(CLASS_NAME, "Exited getFailedAttachmentById method", null);
         return Response.status(Response.Status.OK)
                 .entity(documentMapper.mapStorageUploadAudit(failedAttachmentList))
                 .build();
@@ -202,13 +188,11 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response updateDocument(String id, DocumentCreateUpdateDTO documentCreateUpdateDTO) {
-        Log.info(CLASS_NAME, "Entered updateDocument method", null);
         var document = documentDAO.findDocumentById(id);
         if (Objects.isNull(document)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND, getDocumentNotFoundMsg(id));
         }
         document = documentService.updateDocument(document, documentCreateUpdateDTO);
-        Log.info(CLASS_NAME, "Exited updateDocument method", null);
         return Response.status(Response.Status.CREATED)
                 .entity(documentMapper.mapDetail(documentDAO.update(document)))
                 .build();
@@ -216,33 +200,27 @@ public class DocumentController implements DocumentControllerV1Api {
 
     @Override
     public Response getAllChannels() {
-        Log.info(CLASS_NAME, "Entered getAllChannels method", null);
         // List of unique alphabetically sorted channel names ignoring cases
         List<Channel> uniqueSortedChannelNames = channelDAO.findAllSortedByNameAsc()
                 .filter(distinctByKey(c -> c.getName().toLowerCase(Locale.ROOT)))
                 .toList();
-        Log.info(CLASS_NAME, "Exited getAllChannels method", null);
         return Response.status(Response.Status.OK)
                 .entity(documentMapper.mapChannels(uniqueSortedChannelNames))
                 .build();
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Log.info(CLASS_NAME, "Entered distinctByKey method", null);
         Set<Object> seen = Collections.newSetFromMap(new ConcurrentHashMap<>());
-        Log.info(CLASS_NAME, "Exited distinctByKey method", null);
         return t -> seen.add(keyExtractor.apply(t));
     }
 
     @Override
     public Response getFile(String attachmentId) {
-        Log.info(CLASS_NAME, "Entered getFile method", null);
         var attachment = attachmentDAO.findById(attachmentId);
         if (Objects.isNull(attachment)) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         try (InputStream object = documentService.getObjectFromObjectStore(attachmentId)) {
-            Log.info(CLASS_NAME, "Exited getFile method", null);
             return Response.ok(object)
                     .header("Content-Disposition", String.format("attachment;filename=%s", attachment.getFileName()))
                     .build();
@@ -255,7 +233,6 @@ public class DocumentController implements DocumentControllerV1Api {
 
     @Override
     public Response getAllDocumentAttachmentsAsZip(String documentId, String clientTimezone) {
-        Log.info(CLASS_NAME, "Entered getAllDocumentAttachmentsAsZip method", null);
         try {
             /* Retrieve the document by its ID */
             var document = documentDAO.findById(documentId);
@@ -336,7 +313,6 @@ public class DocumentController implements DocumentControllerV1Api {
                     zip.finish();
                 }
             };
-            Log.info(CLASS_NAME, "Exited getAllDocumentAttachmentsAsZip method", null);
             return Response.ok(stream)
                     .header("Content-Disposition", ATTACHMENT_ZIP_CONTENT_DISPOSITION_HEADER)
                     .type("application/zip")
@@ -354,17 +330,14 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response deleteFilesInBulk(List<String> attachmentIds) {
-        Log.info(CLASS_NAME, "Entered deleteFilesInBulk method", null);
         documentService.updateAttachmentStatusInBulk(attachmentIds);
         attachmentIds.stream().forEach(attachmentId -> documentService.asyncDeleteForAttachments(attachmentId));
-        Log.info(CLASS_NAME, "Exited deleteFilesInBulk method", null);
         return Response.noContent().build();
     }
 
     @Override
     @Transactional
     public Response bulkUpdateDocument(List<DocumentCreateUpdateDTO> documentCreateUpdateDTO) {
-        Log.info(CLASS_NAME, "Entered bulkUpdateDocument method", null);
         Iterator<DocumentCreateUpdateDTO> it = documentCreateUpdateDTO.listIterator();
         List<Document> document1 = new ArrayList<>();
         while (it.hasNext()) {
@@ -381,7 +354,6 @@ public class DocumentController implements DocumentControllerV1Api {
             }
             document1.add(document);
         }
-        Log.info(CLASS_NAME, "Exited bulkUpdateDocument method", null);
         return Response.status(Response.Status.CREATED)
                 .entity(documentMapper.mapDetailBulk(documentDAO.update(document1.stream())))
                 .build();
@@ -390,7 +362,6 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response deleteBulkDocuments(List<String> requestBody) {
-        Log.info(CLASS_NAME, "Entered deleteBulkDocuments method", null);
         List<String> listOfFilesIdToBeDeleted = new ArrayList<>();
         Iterator<String> itr = requestBody.iterator();
         while (itr.hasNext()) {
@@ -404,7 +375,6 @@ public class DocumentController implements DocumentControllerV1Api {
             documentDAO.delete(document);
             listOfFilesIdToBeDeleted.stream().forEach(eachFileId -> documentService.asyncDeleteForAttachments(eachFileId));
         }
-        Log.info(CLASS_NAME, "Exited deleteBulkDocuments method", null);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
@@ -426,8 +396,6 @@ public class DocumentController implements DocumentControllerV1Api {
     }
 
     private String getDocumentNotFoundMsg(String id) {
-        Log.info(CLASS_NAME, "Entered getDocumentNotFoundMsg method", null);
-        Log.info(CLASS_NAME, "Exited getDocumentNotFoundMsg method", null);
         return "Document with id " + id + " was not found.";
 
     }

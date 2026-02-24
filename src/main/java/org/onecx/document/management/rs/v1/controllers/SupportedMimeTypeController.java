@@ -28,14 +28,10 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerV
     @Inject
     AttachmentDAO attachmentDAO;
 
-    private static final String CLASS_NAME = "SupportedMimeTypeController";
-
     @Override
     @Transactional
     public Response createSupportedMimeType(SupportedMimeTypeCreateUpdateDTO supportedMimeTypeCreateUpdateDTO) {
-        Log.info(CLASS_NAME, "Entered createSupportedMimeType method", null);
         var supportedMimeType = supportedMimeTypeDAO.create(supportedMimeTypeMapper.map(supportedMimeTypeCreateUpdateDTO));
-        Log.info(CLASS_NAME, "Exited createSupportedMimeType method", null);
         return Response.status(Response.Status.CREATED)
                 .entity(supportedMimeTypeMapper.mapToDTO(supportedMimeType))
                 .build();
@@ -43,13 +39,11 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerV
 
     @Override
     public Response getSupportedMimeTypeById(String id) {
-        Log.info(CLASS_NAME, "Entered getSupportedMimeTypeById method", null);
         var supportedMimeType = supportedMimeTypeDAO.findById(id);
         if (Objects.isNull(supportedMimeType)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                     getMimeTypeNotFoundMsg(id));
         }
-        Log.info(CLASS_NAME, "Exited getSupportedMimeTypeById method", null);
         return Response.status(Response.Status.OK)
                 .entity(supportedMimeTypeMapper.mapToDTO(supportedMimeType))
                 .build();
@@ -57,8 +51,6 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerV
 
     @Override
     public Response getAllSupportedMimeTypes() {
-        Log.info(CLASS_NAME, "Entered getAllSupportedMimeTypes method", null);
-        Log.info(CLASS_NAME, "Exited getAllSupportedMimeTypes method", null);
         return Response.status(Response.Status.OK)
                 .entity(supportedMimeTypeMapper.findAllSupportedMimeTypes(supportedMimeTypeDAO.findAll()
                         .toList()))
@@ -68,7 +60,6 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerV
     @Override
     @Transactional
     public Response deleteSupportedMimeTypeId(String id) {
-        Log.info(CLASS_NAME, "Entered deleteSupportedMimeTypeById method", null);
         var supportedMimeType = supportedMimeTypeDAO.findById(id);
         if (Objects.nonNull(supportedMimeType)) {
             if (!attachmentDAO.findAttachmentsWithSupportedMimeTypeId(id).isEmpty()) {
@@ -77,7 +68,6 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerV
                                 + ". It is assigned to the attachment.");
             }
             supportedMimeTypeDAO.delete(supportedMimeType);
-            Log.info(CLASS_NAME, "Exited deleteSupportedMimeTypeById method", null);
             return Response.status(Response.Status.NO_CONTENT).build();
         }
         throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
@@ -87,14 +77,12 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerV
     @Override
     @Transactional
     public Response updateSupportedMimeTypeById(String id, SupportedMimeTypeCreateUpdateDTO supportedMimeTypeCreateUpdateDTO) {
-        Log.info(CLASS_NAME, "Entered updateSupportedMimeTypeById method", null);
         var supportedMimeType = supportedMimeTypeDAO.findById(id);
         if (Objects.isNull(supportedMimeType)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                     getMimeTypeNotFoundMsg(id));
         }
         supportedMimeTypeMapper.update(supportedMimeTypeCreateUpdateDTO, supportedMimeType);
-        Log.info(CLASS_NAME, "Exited updateSupportedMimeTypeById method", null);
         return Response.status(Response.Status.OK)
                 .entity(supportedMimeTypeMapper
                         .mapToDTO(supportedMimeTypeDAO.update(supportedMimeType)))
@@ -102,8 +90,6 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerV
     }
 
     private String getMimeTypeNotFoundMsg(String id) {
-        Log.info(CLASS_NAME, "Entered getMimeTypeNotFoundMsg method", null);
-        Log.info(CLASS_NAME, "Exited getMimeTypeNotFoundMsg method", null);
         return "The supported mime-type with id " + id + " was not found.";
     }
 

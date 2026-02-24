@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Maps exceptions thrown in application to Response with RFCProblem.
  */
-@Slf4j
 @Provider
 @Priority(ExceptionToRFCProblemMapper.PRIORITY)
 public class ExceptionToRFCProblemMapper implements ExceptionMapper<Exception> {
@@ -44,9 +43,6 @@ public class ExceptionToRFCProblemMapper implements ExceptionMapper<Exception> {
      */
     @Override
     public Response toResponse(Exception exception) {
-
-        log.error("REST exception URL:{},ERROR:{}", uriInfo.getRequestUri(), exception.getMessage());
-        log.error("REST exception error!", exception);
 
         if (exception instanceof DAOException daoException) {
             return createResponse(daoException);

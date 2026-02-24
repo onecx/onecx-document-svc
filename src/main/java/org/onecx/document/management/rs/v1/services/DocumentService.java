@@ -67,7 +67,6 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Document service.
  */
-@Slf4j
 @ApplicationScoped
 public class DocumentService {
 
@@ -116,22 +115,17 @@ public class DocumentService {
 
     private static final String STRING_TOKEN_DELIMITER = ",";
 
-    private static final String CLASS_NAME = "DocumentService";
-
     public Document createDocument(DocumentCreateUpdateDTO dto) {
-        Log.info(CLASS_NAME, "Entered createDocument method", null);
         var document = documentMapper.map(dto);
         setType(dto, document);
         setSpecification(dto, document);
         setAttachments(dto, document);
-        Log.info(CLASS_NAME, "Exited createDocument method", null);
         return documentDAO.create(document);
     }
 
     @Transactional
     public Map<String, Integer> uploadAttachment(String documentId, MultipartFormDataInput input)
             throws IOException {
-        Log.info(CLASS_NAME, "Entered uploadAttachment method", null);
         HashMap<String, Integer> map = new HashMap<>();
         Set<Attachment> newAttachmentSet = new HashSet<>();
         var document = documentDAO.findDocumentById(documentId);
@@ -185,14 +179,11 @@ public class DocumentService {
                         } catch (Exception e) {
                             map.put(strFilenameFileId, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
                             createStorageUploadAuditRecords(documentId, document, attachment);
-                            log.error("Error Message: ", e);
                         }
                     });
         } else {
-            Log.info(CLASS_NAME, "Exited uploadAttachment method", null);
             return map;
         }
-        Log.info(CLASS_NAME, "Exited uploadAttachment method", null);
         return map;
     }
 
@@ -207,7 +198,6 @@ public class DocumentService {
     }
 
     public void createStorageUploadAuditRecords(String documentId, Document document, Attachment attachment) {
-        Log.info(CLASS_NAME, "Entered createStorageUploadAuditRecords method", null);
         var storageUploadAudit = new StorageUploadAudit();
         storageUploadAudit.setDocumentId(documentId);
         storageUploadAudit.setDocumentName(document.getName());
@@ -233,7 +223,6 @@ public class DocumentService {
         storageUploadAudit.setObjectReferenceType(document.getRelatedObject().getObjectReferenceType());
         storageUploadAudit.setObjectReferenceId(document.getRelatedObject().getObjectReferenceId());
         storageUploadAuditDAO.create(storageUploadAudit);
-        Log.info(CLASS_NAME, "Exited createStorageUploadAuditRecords method", null);
 
     }
 
@@ -251,7 +240,6 @@ public class DocumentService {
      */
     @Transactional
     public Document updateDocument(Document document, DocumentCreateUpdateDTO dto) {
-        Log.info(CLASS_NAME, "Entered updateDocument method", null);
         documentMapper.update(dto, document);
         setType(dto, document);
         setSpecification(dto, document);
@@ -259,25 +247,21 @@ public class DocumentService {
         updateRelatedObjectRefInDocument(document, dto);
         documentMapper.updateTraceableCollectionsInDocument(document, dto);
         updateAttachmentsInDocument(document, dto);
-        Log.info(CLASS_NAME, "Exited updateDocument method", null);
         return document;
     }
 
     public InputStream getObjectFromObjectStore(String objectId)
             throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException,
             NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
-        Log.info(CLASS_NAME, "Entered getObjectFromObjectStore method", null);
         var getObjectArgs = GetObjectArgs.builder()
                 .bucket(bucketFolder)
                 .object(objectId)
                 .build();
-        Log.info(CLASS_NAME, "Exited getObjectFromObjectStore method", null);
         return minioClient.getObject(getObjectArgs);
     }
 
     @Transactional
     public void updateAttachmentStatusInBulk(List<String> attachmentIds) {
-        Log.info(CLASS_NAME, "Entered updateAttachmentStatusInBulk method", null);
         attachmentIds.stream().forEach(attachmentId -> {
             var attachment = attachmentDAO.findById(attachmentId);
             if (Objects.isNull(attachment)) {
@@ -286,19 +270,15 @@ public class DocumentService {
             }
             attachment.setStorageUploadStatus(false);
         });
-        Log.info(CLASS_NAME, "Exited updateAttachmentStatusInBulk method", null);
     }
 
     @Transactional(Transactional.TxType.NOT_SUPPORTED)
     public void asyncDeleteForAttachments(String attachmentId) {
-        Log.info(CLASS_NAME, "Entered asyncDeleteForAttachments method", null);
         Uni.createFrom().item(attachmentId).emitOn(Infrastructure.getDefaultWorkerPool()).subscribe().with(
                 this::deleteFileInAttachmentAsync, Throwable::printStackTrace);
-        Log.info(CLASS_NAME, "Entered asyncDeleteForAttachments method", null);
     }
 
     public void deleteFileInAttachmentAsync(String attachmentId) {
-        Log.info(CLASS_NAME, "Entered deleteFileInAttachmentAsync method", null);
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -313,17 +293,14 @@ public class DocumentService {
             minioAuditLogDAO.create(minioAuditLog);
             throw new CustomException("An error occurred while deleting the attachment file.", e);
         }
-        Log.info(CLASS_NAME, "Exited deleteFileInAttachmentAsync method", null);
     }
 
     @Transactional
     public List<String> getFilesIdToBeDeletedInDocument(Document document) {
-        Log.info(CLASS_NAME, "Entered getFilesIdToBeDeletedInDocument method", null);
         if (!Objects.isNull(document.getAttachments())) {
             List<String> attachmentIds = document.getAttachments().stream().map(TraceableEntity::getId)
                     .toList();
             updateAttachmentStatusInBulk(attachmentIds);
-            Log.info(CLASS_NAME, "Exited getFilesIdToBeDeletedInDocument method", null);
             return attachmentIds;
         }
         return Collections.emptyList();
@@ -338,15 +315,12 @@ public class DocumentService {
      */
     private void setType(DocumentCreateUpdateDTO dto, Document document) {
 
-        Log.info(CLASS_NAME, "Entered setType method", null);
         var documentType = typeDAO.findById(dto.getTypeId());
         if (Objects.isNull(documentType)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                     getDocumentNotFoundMsg(dto.getTypeId()));
         }
         document.setType(documentType);
-        Log.info(CLASS_NAME, "Exited setType method", null);
-
     }
 
     /**
@@ -358,7 +332,6 @@ public class DocumentService {
      * @param document a {@link Document}
      */
     private void setSpecification(DocumentCreateUpdateDTO dto, Document document) {
-        Log.info(CLASS_NAME, "Entered setSpecification method", null);
         if (Objects.isNull(dto.getSpecification())) {
             document.setSpecification(null);
         } else {
@@ -367,7 +340,6 @@ public class DocumentService {
             var documentSpecification = documentSpecificationMapper.map(docSpecDto);
             document.setSpecification(documentSpecification);
         }
-        Log.info(CLASS_NAME, "Exited setSpecification method", null);
     }
 
     /**
@@ -379,13 +351,11 @@ public class DocumentService {
      *         given id.
      */
     private SupportedMimeType getSupportedMimeType(AttachmentCreateUpdateDTO dto) {
-        Log.info(CLASS_NAME, "Entered getSupportedMimeType method", null);
         SupportedMimeType mimeType = mimeTypeDAO.findById(dto.getMimeTypeId());
         if (Objects.isNull(mimeType)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                     getSupportedMimeTypeNotFoundMsg(dto.getMimeTypeId()));
         }
-        Log.info(CLASS_NAME, "Exited getSupportedMimeType method", null);
         return mimeType;
     }
 
@@ -399,7 +369,6 @@ public class DocumentService {
      * @param document a {@link Document}
      */
     private void setAttachments(DocumentCreateUpdateDTO dto, Document document) {
-        Log.info(CLASS_NAME, "Entered setAttachments method", null);
         if (Objects.isNull(dto.getAttachments())) {
             document.setAttachments(null);
         } else {
@@ -413,7 +382,6 @@ public class DocumentService {
                 }
             }
         }
-        Log.info(CLASS_NAME, "Exited setAttachments method", null);
     }
 
     /**
@@ -424,14 +392,12 @@ public class DocumentService {
      * @param updateDTO a {@link DocumentCreateUpdateDTO}
      */
     private void updateChannelInDocument(Document document, DocumentCreateUpdateDTO updateDTO) {
-        Log.info(CLASS_NAME, "Entered updateChannelInDocument method", null);
         if (Objects.isNull(updateDTO.getChannel().getId()) || updateDTO.getChannel().getId().isEmpty()) {
             var channel = documentMapper.mapChannel(updateDTO.getChannel());
             document.setChannel(channel);
         } else {
             documentMapper.updateChannel(updateDTO.getChannel(), document.getChannel());
         }
-        Log.info(CLASS_NAME, "Exited updateChannelInDocument method", null);
     }
 
     /**
@@ -442,7 +408,6 @@ public class DocumentService {
      * @param updateDTO a {@link DocumentCreateUpdateDTO}
      */
     private void updateRelatedObjectRefInDocument(Document document, DocumentCreateUpdateDTO updateDTO) {
-        Log.info(CLASS_NAME, "Entered updateRelatedObjectRefInDocument method", null);
         if (Objects.isNull(updateDTO.getRelatedObject())) {
             document.setRelatedObject(null);
         } else {
@@ -454,7 +419,6 @@ public class DocumentService {
                 documentMapper.updateRelatedObjectRef(updateDTO.getRelatedObject(), document.getRelatedObject());
             }
         }
-        Log.info(CLASS_NAME, "Exited updateRelatedObjectRefInDocument method", null);
     }
 
     /**
@@ -467,7 +431,6 @@ public class DocumentService {
      * @param updateDTO a {@link DocumentCreateUpdateDTO}
      */
     private void updateAttachmentsInDocument(Document document, DocumentCreateUpdateDTO updateDTO) {
-        Log.info(CLASS_NAME, "Entered updateAttachmentsInDocument method", null);
         if (Objects.nonNull(updateDTO.getAttachments())) {
             for (Iterator<Attachment> i = document.getAttachments().iterator(); i.hasNext();) {
                 Attachment entity = i.next();
@@ -483,48 +446,37 @@ public class DocumentService {
             }
             setAttachments(updateDTO, document);
         }
-        Log.info(CLASS_NAME, "Exited updateAttachmentsInDocument method", null);
     }
 
     private void uploadFileToObjectStorage(byte[] fileBytes, String id)
             throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException,
             NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
-        Log.info(CLASS_NAME, "Entered uploadFileToObjectStorage method", null);
         minioClient.putObject(PutObjectArgs.builder()
                 .bucket(bucketFolder)
                 .object(id)
                 .stream(new ByteArrayInputStream(fileBytes), fileBytes.length, -1)
                 .build());
-        Log.info(CLASS_NAME, "Exited uploadFileToObjectStorage method", null);
 
     }
 
     private void updateAttachmentAfterUpload(Attachment attachment, BigDecimal size, String contentType) {
-        Log.info(CLASS_NAME, "Entered updateAttachmentAfterUpload method", null);
         attachment.setSize(size);
         attachment.setSizeUnit(AttachmentUnit.BYTES);
         attachment.setStorage("MinIO");
         attachment.setType(contentType);
         attachment.setExternalStorageURL(minioUrl);
         attachment.setStorageUploadStatus(true);
-        Log.info(CLASS_NAME, "Exited updateAttachmentAfterUpload method", null);
     }
 
     private String getAttachmentNotFoundMsg(String attachmentId) {
-        Log.info(CLASS_NAME, "Entered getAttachmentNotFoundMsg method", null);
-        Log.info(CLASS_NAME, "Exited getAttachmentNotFoundMsg method", null);
         return String.format("The attachment with ID %s was not found.", attachmentId);
     }
 
     private String getDocumentNotFoundMsg(String documentId) {
-        Log.info(CLASS_NAME, "Entered getDocumentNotFoundMsg method", null);
-        Log.info(CLASS_NAME, "Exited getDocumentNotFoundMsg method", null);
         return String.format("The document with ID %s was not found.", documentId);
     }
 
     private String getSupportedMimeTypeNotFoundMsg(String mimeTypeId) {
-        Log.info(CLASS_NAME, "Entered getSupportedMimeTypeNotFoundMsg method", null);
-        Log.info(CLASS_NAME, "Exited getSupportedMimeTypeNotFoundMsg method", null);
         return String.format("The supported mime type with ID %s was not found.", mimeTypeId);
     }
 

@@ -32,12 +32,9 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
     @Inject
     EntityManager entityManager;
 
-    private static final String CLASS_NAME = "DocumentSpecificationController";
-
     @Override
     @Transactional
     public Response createDocumentSpecification(DocumentSpecificationCreateUpdateDTO documentSpecificationCreateUpdateDTO) {
-        Log.info(CLASS_NAME, "Entered createDocumentSpecification method", null);
         if (Objects.isNull(documentSpecificationCreateUpdateDTO.getName())
                 || Objects.equals(documentSpecificationCreateUpdateDTO.getName().trim(), "")) {
             throw new RestException(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST,
@@ -45,7 +42,6 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
         }
         var documentSpecification = documentSpecificationDAO
                 .create(documentSpecificationMapper.map(documentSpecificationCreateUpdateDTO));
-        Log.info(CLASS_NAME, "Exited createDocumentSpecification method", null);
         return Response.status(Response.Status.CREATED)
                 .entity(documentSpecificationMapper.mapToDTO(documentSpecification))
                 .build();
@@ -53,13 +49,11 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
 
     @Override
     public Response getDocumentSpecificationById(String id) {
-        Log.info(CLASS_NAME, "Entered getDocumentSpecificationById method", null);
         var documentSpecification = documentSpecificationDAO.findById(id);
         if (Objects.isNull(documentSpecification)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                     getSpecificationNotFoundMsg(id));
         }
-        Log.info(CLASS_NAME, "Exited getDocumentSpecificationById method", null);
         return Response.status(Response.Status.OK)
                 .entity(documentSpecificationMapper.mapToDTO(documentSpecification))
                 .build();
@@ -67,8 +61,6 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
 
     @Override
     public Response getAllDocumentSpecifications() {
-        Log.info(CLASS_NAME, "Entered getAllDocumentSpecifications method", null);
-        Log.info(CLASS_NAME, "Exited getAllDocumentSpecifications method", null);
         return Response.status(Response.Status.OK)
                 .entity(documentSpecificationMapper
                         .findAllDocumentSpecifications(documentSpecificationDAO.findAll()
@@ -79,7 +71,6 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
     @Override
     @Transactional
     public Response deleteDocumentSpecificationById(String id) {
-        Log.info(CLASS_NAME, "Entered deleteDocumentSpecificationById method", null);
         var documentSpecification = documentSpecificationDAO.findById(id);
         if (Objects.nonNull(documentSpecification)) {
             if (!documentDAO.findDocumentsWithDocumentSpecificationId(id).isEmpty()) {
@@ -88,8 +79,6 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
                                 + ". It is assigned to the document.");
             }
             entityManager.remove(documentSpecification);
-            Log.info(CLASS_NAME, "Exited deleteDocumentSpecificationById method",
-                    null);
             return Response.status(Response.Status.NO_CONTENT).build();
         }
         throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
@@ -100,14 +89,12 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
     @Transactional
     public Response updateDocumentSpecificationById(String id,
             DocumentSpecificationCreateUpdateDTO documentSpecificationCreateUpdateDTO) {
-        Log.info(CLASS_NAME, "Entered updateDocumentSpecificationById method", null);
         var documentSpecification = documentSpecificationDAO.findById(id);
         if (Objects.isNull(documentSpecification)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                     getSpecificationNotFoundMsg(id));
         }
         documentSpecificationMapper.update(documentSpecificationCreateUpdateDTO, documentSpecification);
-        Log.info(CLASS_NAME, "Exited updateDocumentSpecificationById method", null);
         return Response.status(Response.Status.OK)
                 .entity(documentSpecificationMapper
                         .mapToDTO(documentSpecificationDAO.update(documentSpecification)))
@@ -115,8 +102,6 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
     }
 
     private String getSpecificationNotFoundMsg(String id) {
-        Log.info(CLASS_NAME, "Entered getSpecificationNotFoundMsg method", null);
-        Log.info(CLASS_NAME, "Exited getSpecificationNotFoundMsg method", null);
         return "The document specification with id " + id + " was not found.";
     }
 
