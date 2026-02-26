@@ -32,7 +32,6 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
-import io.quarkus.logging.Log;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

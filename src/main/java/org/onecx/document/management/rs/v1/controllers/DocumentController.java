@@ -4,19 +4,14 @@ import static io.quarkus.scheduler.Scheduled.ConcurrentExecution.PROCEED;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.attribute.FileTime;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,7 +20,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
-import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.reactive.server.multipart.MultipartFormDataInput;
 import org.onecx.document.management.domain.criteria.DocumentSearchCriteria;
 import org.onecx.document.management.domain.daos.AttachmentDAO;
@@ -234,91 +228,23 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     public Response getAllDocumentAttachmentsAsZip(String documentId, String clientTimezone) {
         try {
-            /* Retrieve the document by its ID */
-            var document = documentDAO.findById(documentId);
-
-            /*
-             * Return a bad request response if the document is not found because a document
-             * should exist for this request to have come in
-             */
-            if (Objects.isNull(document))
-                return Response.status(Response.Status.BAD_REQUEST).build();
-
-            /* Retrieve the attachment details of this document */
-            Set<Attachment> documentAttachmentSet = document.getAttachments().stream()
-                    .filter(Attachment::getStorageUploadStatus).collect(Collectors.toSet());
-
-            /*
-             * If the document has no attachments return a 204 error because there is no
-             * content to return.
-             */
-            if (Objects.isNull(documentAttachmentSet) || documentAttachmentSet.isEmpty())
+            StreamingOutput stream = documentService.getAttachmentsZipStream(documentId, clientTimezone);
+            if (stream == null) {
                 return Response.status(Response.Status.NO_CONTENT).build();
-
-            /* Code to create a zip file containing all the attachment files */
-            StreamingOutput stream = output -> {
-
-                /*
-                 * Use ZipOutputStream to create the zip and compress the its contents. This
-                 * reduces the size of the zip file and saves bandwidth and data while
-                 * transmitting over the internet. We are using the default compression level
-                 * because it is a good balance between file size and compression speed.
-                 */
-                try (var zip = new ZipOutputStream(output)) {
-
-                    /* Iterate over the set of attachments of the document using Java Streams */
-                    documentAttachmentSet.stream()
-                            .filter(Objects::nonNull)
-                            .forEach(attachment -> {
-                                try {
-
-                                    /* Download the attachment file from minio */
-                                    InputStream object = documentService
-                                            .getObjectFromObjectStore(
-                                                    attachment.getId());
-
-                                    /*
-                                     * Add the attachment file into the zip with the
-                                     * same filename
-                                     */
-                                    var entry = new ZipEntry(
-                                            attachment.getFileName());
-                                    entry.setSize(object.available());
-                                    ZoneId clientZoneId = (clientTimezone != null && !clientTimezone.isEmpty())
-                                            ? ZoneId.of(clientTimezone)
-                                            : ZoneId.of("UTC");
-                                    LocalDateTime attachmentDateTime = attachment.getCreationDate();
-                                    FileTime fileTime;
-                                    if (attachmentDateTime != null)
-                                        fileTime = FileTime.from(attachmentDateTime.atZone(clientZoneId).toInstant());
-                                    else
-                                        fileTime = FileTime.from(LocalDateTime.now().atZone(clientZoneId).toInstant());
-                                    entry.setCreationTime(fileTime);
-                                    entry.setLastModifiedTime(fileTime);
-                                    zip.putNextEntry(entry);
-                                    IOUtils.copy(object, zip);
-                                    zip.closeEntry();
-                                } catch (Exception e) {
-                                    /*
-                                     * If the attachment file could not be retrieved,
-                                     * throw an
-                                     * interal server error RestException.
-                                     */
-                                    throw new RestException(
-                                            Response.Status.INTERNAL_SERVER_ERROR,
-                                            Response.Status.INTERNAL_SERVER_ERROR,
-                                            "Failed to download file", e);
-                                }
-                            });
-                    zip.finish();
-                }
-            };
+            }
             return Response.ok(stream)
                     .header("Content-Disposition", ATTACHMENT_ZIP_CONTENT_DISPOSITION_HEADER)
                     .type("application/zip")
                     .build();
+        } catch (RestException e) {
+            if (e.getStatus() == Response.Status.BAD_REQUEST) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(e)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         } catch (Exception e) {
-            /* Return an internal server error to the client if any issue occurs */
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(e)
                     .type(MediaType.APPLICATION_JSON)

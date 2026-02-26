@@ -8,10 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.onecx.document.management.domain.criteria.DocumentSearchCriteria;
 import org.onecx.document.management.domain.models.entities.Attachment;
 import org.onecx.document.management.domain.models.entities.Category;
@@ -242,6 +239,34 @@ public interface DocumentMapper {
     @Mapping(target = "persisted", ignore = true)
     @Mapping(target = "id", ignore = true)
     RelatedObjectRef mapRelatedObjectRef(RelatedObjectRefCreateUpdateDTO dto);
+
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "creationUser", ignore = true)
+    @Mapping(target = "modificationDate", ignore = true)
+    @Mapping(target = "modificationUser", ignore = true)
+    @Mapping(target = "controlTraceabilityManual", ignore = true)
+    @Mapping(target = "modificationCount", ignore = true)
+    @Mapping(target = "persisted", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "documentName", source = "document.name")
+    @Mapping(target = "documentDescription", source = "document.description")
+    @Mapping(target = "channelId", source = "document.channel.id")
+    @Mapping(target = "channelName", source = "document.channel.name")
+    @Mapping(target = "documentTypeId", source = "document.type.id")
+    @Mapping(target = "documentTypeName", source = "document.type.name")
+    @Mapping(target = "specificationId", source = "document.specification.id")
+    @Mapping(target = "specificationName", source = "document.specification.name")
+    @Mapping(target = "relatedObjectId", source = "document.relatedObject.id")
+    @Mapping(target = "involvement", source = "document.relatedObject.involvement")
+    @Mapping(target = "objectReferenceType", source = "document.relatedObject.objectReferenceType")
+    @Mapping(target = "objectReferenceId", source = "document.relatedObject.objectReferenceId")
+    @Mapping(target = "attachmentId", source = "attachment.id")
+    @Mapping(target = "fileName", source = "attachment.fileName")
+    @Mapping(target = "name", source = "attachment.name")
+    @Mapping(target = "attachmentDescription", source = "attachment.description")
+    @Mapping(target = "mimeTypeId", source = "attachment.mimeType.id")
+    @Mapping(target = "mimeTypeName", source = "attachment.mimeType.name")
+    StorageUploadAudit mapToStorageUploadAudit(String documentId, Document document, Attachment attachment);
 
     default void updateTraceableCollectionsInDocument(Document document,
             DocumentCreateUpdateDTO updateDTO) {

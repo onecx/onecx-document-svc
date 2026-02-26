@@ -5,10 +5,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLConnection;
+import java.nio.file.attribute.FileTime;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,6 +22,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -38,7 +45,6 @@ import org.onecx.document.management.domain.models.entities.DocumentType;
 import org.onecx.document.management.domain.models.entities.MinioAuditLog;
 import org.onecx.document.management.domain.models.entities.RelatedObjectRef;
 import org.onecx.document.management.domain.models.entities.RelatedPartyRef;
-import org.onecx.document.management.domain.models.entities.StorageUploadAudit;
 import org.onecx.document.management.domain.models.entities.SupportedMimeType;
 import org.onecx.document.management.domain.models.enums.AttachmentUnit;
 import org.onecx.document.management.rs.v1.exception.CustomException;
@@ -125,103 +131,25 @@ public class DocumentService {
     public Map<String, Integer> uploadAttachment(String documentId, MultipartFormDataInput input)
             throws IOException {
         HashMap<String, Integer> map = new HashMap<>();
-        Set<Attachment> newAttachmentSet = new HashSet<>();
         var document = documentDAO.findDocumentById(documentId);
         if (Objects.isNull(document)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                     getDocumentNotFoundMsg(documentId));
         }
-        String mediaType = "";
-        for (Map.Entry<String, Collection<FormValue>> attribute : input.getValues().entrySet()) {
-            for (FormValue fv : attribute.getValue()) {
-                if (fv.isFileItem()) {
-                    mediaType = fv.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
-                }
-            }
-        }
-        Map<String, Collection<FormValue>> uploadForm = input.getValues();
-
-        Collection<FormValue> inputParts = uploadForm.get(FORM_DATA_MAP_KEY);
-        if (String.valueOf(MediaType.valueOf(mediaType))
-                .equals(ATTACHMENT_ID_LIST_MEDIA_TYPE)) {
-            List<String> attachmentIdList = getAttachmentIdList(inputParts.stream().toList());
-            inputParts.remove(0);
-            if (!attachmentIdList.isEmpty()) {
-                attachmentIdList.stream().forEach(attachmentId -> {
-                    Optional<Attachment> matchedAttachment = document.getAttachments().stream()
-                            .filter(attachment -> attachmentId.equals(attachment.getId())).findFirst();
-                    matchedAttachment.ifPresent(newAttachmentSet::add);
-                });
-            }
-        } else {
-            newAttachmentSet.addAll(document.getAttachments());
-        }
-        if (!newAttachmentSet.isEmpty()) {
-            newAttachmentSet.stream()
-                    .forEach(attachment -> {
-                        Optional<FormValue> matchedInputPart = inputParts.stream().filter(inputPart -> {
-                            String filename = inputPart.getFileName();
-                            return attachment.getFileName().equals(filename);
-                        }).findFirst();
-                        String strFilenameFileId = attachment.getId() + SLASH + attachment.getName();
-                        try {
-                            if (matchedInputPart.isPresent()) {
-                                InputStream inputPartBody = matchedInputPart.get().getFileItem().getInputStream();
-                                byte[] fileBytes = IOUtils.toByteArray(inputPartBody);
-                                InputStream fileByteArrayInputStream = new ByteArrayInputStream(fileBytes);
-                                String contentType = URLConnection.guessContentTypeFromStream(fileByteArrayInputStream);
-                                uploadFileToObjectStorage(fileBytes, attachment.getId());
-                                map.put(strFilenameFileId, Response.Status.CREATED.getStatusCode());
-                                updateAttachmentAfterUpload(attachment, new BigDecimal(fileBytes.length), contentType);
-                            }
-                        } catch (Exception e) {
-                            map.put(strFilenameFileId, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-                            createStorageUploadAuditRecords(documentId, document, attachment);
-                        }
-                    });
-        } else {
+        Collection<FormValue> inputParts = input.getValues().get(FORM_DATA_MAP_KEY);
+        String mediaType = resolveMediaType(input);
+        Set<Attachment> attachmentsToProcess = resolveAttachmentsToProcess(document, inputParts, mediaType);
+        if (attachmentsToProcess.isEmpty()) {
             return map;
         }
+        attachmentsToProcess.forEach(
+                attachment -> processAttachment(documentId, document, attachment, inputParts, map));
         return map;
     }
 
-    private List<String> getAttachmentIdList(List<FormValue> inputPartList) throws IOException {
-        List<String> attachmentIdList = new ArrayList<>();
-        var stringTokenizer = new StringTokenizer(String.valueOf(inputPartList.get(0).getFileItem()),
-                STRING_TOKEN_DELIMITER);
-        while (stringTokenizer.hasMoreTokens()) {
-            attachmentIdList.add(stringTokenizer.nextToken());
-        }
-        return attachmentIdList;
-    }
-
     public void createStorageUploadAuditRecords(String documentId, Document document, Attachment attachment) {
-        var storageUploadAudit = new StorageUploadAudit();
-        storageUploadAudit.setDocumentId(documentId);
-        storageUploadAudit.setDocumentName(document.getName());
-        storageUploadAudit.setDocumentDescription(document.getDescription());
-        storageUploadAudit.setDocumentVersion(document.getDocumentVersion());
-        storageUploadAudit.setLifeCycleState(document.getLifeCycleState().toString());
-        storageUploadAudit.setChannelId(document.getChannel().getId());
-        storageUploadAudit.setChannelName(document.getChannel().getName());
-        storageUploadAudit.setDocumentTypeId(document.getType().getId());
-        storageUploadAudit.setDocumentTypeName(document.getType().getName());
-        storageUploadAudit.setAttachmentId(attachment.getId());
-        storageUploadAudit.setFileName(attachment.getFileName());
-        storageUploadAudit.setName(attachment.getName());
-        storageUploadAudit.setAttachmentDescription(attachment.getDescription());
-        storageUploadAudit.setMimeTypeId(attachment.getMimeType().getId());
-        storageUploadAudit.setMimeTypeName(attachment.getMimeType().getName());
-        if (Objects.nonNull(document.getSpecification())) {
-            storageUploadAudit.setSpecificationId(document.getSpecification().getId());
-            storageUploadAudit.setSpecificationName(document.getSpecification().getName());
-        }
-        storageUploadAudit.setRelatedObjectId(document.getRelatedObject().getId());
-        storageUploadAudit.setInvolvement(document.getRelatedObject().getInvolvement());
-        storageUploadAudit.setObjectReferenceType(document.getRelatedObject().getObjectReferenceType());
-        storageUploadAudit.setObjectReferenceId(document.getRelatedObject().getObjectReferenceId());
+        var storageUploadAudit = documentMapper.mapToStorageUploadAudit(documentId, document, attachment);
         storageUploadAuditDAO.create(storageUploadAudit);
-
     }
 
     /**
@@ -302,6 +230,95 @@ public class DocumentService {
             return attachmentIds;
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Retrieves the uploaded attachments of a document and returns a
+     * {@link StreamingOutput} that streams them as a ZIP archive.
+     *
+     * @param documentId the ID of the document
+     * @param clientTimezone the timezone string used for ZIP entry timestamps
+     * @return a {@link StreamingOutput} containing all attachment files zipped
+     */
+    public StreamingOutput getAttachmentsZipStream(String documentId, String clientTimezone) {
+        var document = documentDAO.findById(documentId);
+        if (Objects.isNull(document)) {
+            throw new RestException(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST,
+                    getDocumentNotFoundMsg(documentId));
+        }
+        Set<Attachment> attachments = getUploadedAttachments(document);
+        if (attachments.isEmpty()) {
+            return null;
+        }
+        return output -> {
+            try (var zip = new ZipOutputStream(output)) {
+                for (Attachment attachment : attachments) {
+                    if (attachment == null) {
+                        continue;
+                    }
+                    addAttachmentToZip(attachment, clientTimezone, zip);
+                }
+                zip.finish();
+            }
+        };
+    }
+
+    private String resolveMediaType(MultipartFormDataInput input) {
+        for (Map.Entry<String, Collection<FormValue>> attribute : input.getValues().entrySet()) {
+            for (FormValue fv : attribute.getValue()) {
+                if (fv.isFileItem()) {
+                    return fv.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+                }
+            }
+        }
+        return "";
+    }
+
+    private Set<Attachment> resolveAttachmentsToProcess(Document document, Collection<FormValue> inputParts,
+            String mediaType) throws IOException {
+        Set<Attachment> attachmentSet = new HashSet<>();
+        if (String.valueOf(MediaType.valueOf(mediaType)).equals(ATTACHMENT_ID_LIST_MEDIA_TYPE)) {
+            List<String> attachmentIdList = getAttachmentIdList(inputParts.stream().toList());
+            inputParts.remove(0);
+            attachmentIdList.forEach(attachmentId -> document.getAttachments().stream()
+                    .filter(attachment -> attachmentId.equals(attachment.getId()))
+                    .findFirst()
+                    .ifPresent(attachmentSet::add));
+        } else {
+            attachmentSet.addAll(document.getAttachments());
+        }
+        return attachmentSet;
+    }
+
+    private void processAttachment(String documentId, Document document, Attachment attachment,
+            Collection<FormValue> inputParts, Map<String, Integer> map) {
+        String strFilenameFileId = attachment.getId() + SLASH + attachment.getName();
+        Optional<FormValue> matchedInputPart = inputParts.stream()
+                .filter(inputPart -> attachment.getFileName().equals(inputPart.getFileName()))
+                .findFirst();
+        try {
+            if (matchedInputPart.isPresent()) {
+                InputStream inputPartBody = matchedInputPart.get().getFileItem().getInputStream();
+                byte[] fileBytes = IOUtils.toByteArray(inputPartBody);
+                String contentType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(fileBytes));
+                uploadFileToObjectStorage(fileBytes, attachment.getId());
+                map.put(strFilenameFileId, Response.Status.CREATED.getStatusCode());
+                updateAttachmentAfterUpload(attachment, new BigDecimal(fileBytes.length), contentType);
+            }
+        } catch (Exception e) {
+            map.put(strFilenameFileId, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+            createStorageUploadAuditRecords(documentId, document, attachment);
+        }
+    }
+
+    private List<String> getAttachmentIdList(List<FormValue> inputPartList) throws IOException {
+        List<String> attachmentIdList = new ArrayList<>();
+        var stringTokenizer = new StringTokenizer(String.valueOf(inputPartList.get(0).getFileItem()),
+                STRING_TOKEN_DELIMITER);
+        while (stringTokenizer.hasMoreTokens()) {
+            attachmentIdList.add(stringTokenizer.nextToken());
+        }
+        return attachmentIdList;
     }
 
     /**
@@ -476,6 +493,48 @@ public class DocumentService {
 
     private String getSupportedMimeTypeNotFoundMsg(String mimeTypeId) {
         return String.format("The supported mime type with ID %s was not found.", mimeTypeId);
+    }
+
+    private Set<Attachment> getUploadedAttachments(Document document) {
+        return document.getAttachments().stream()
+                .filter(Attachment::getStorageUploadStatus)
+                .collect(Collectors.toSet());
+    }
+
+    private void addAttachmentToZip(Attachment attachment, String clientTimezone, ZipOutputStream zip)
+            throws IOException {
+        try {
+            InputStream object = getObjectFromObjectStore(attachment.getId());
+            ZipEntry entry = buildZipEntry(attachment, clientTimezone, object);
+            zip.putNextEntry(entry);
+            IOUtils.copy(object, zip);
+            zip.closeEntry();
+        } catch (InvalidKeyException | InvalidResponseException | InsufficientDataException
+                | NoSuchAlgorithmException | ServerException | InternalException | XmlParserException
+                | ErrorResponseException e) {
+            throw new RestException(Response.Status.INTERNAL_SERVER_ERROR,
+                    Response.Status.INTERNAL_SERVER_ERROR,
+                    "Failed to download file for attachment: " + attachment.getId(), e);
+        }
+    }
+
+    private ZipEntry buildZipEntry(Attachment attachment, String clientTimezone, InputStream object)
+            throws IOException {
+        var entry = new ZipEntry(attachment.getFileName());
+        entry.setSize(object.available());
+        ZoneId clientZoneId = (clientTimezone != null && !clientTimezone.isEmpty())
+                ? ZoneId.of(clientTimezone)
+                : ZoneId.of("UTC");
+        FileTime fileTime = resolveFileTime(attachment, clientZoneId);
+        entry.setCreationTime(fileTime);
+        entry.setLastModifiedTime(fileTime);
+        return entry;
+    }
+
+    private FileTime resolveFileTime(Attachment attachment, ZoneId clientZoneId) {
+        LocalDateTime attachmentDateTime = attachment.getCreationDate();
+        return FileTime.from(Objects.requireNonNullElseGet(attachmentDateTime, LocalDateTime::now)
+                .atZone(clientZoneId).toInstant());
     }
 
 }
