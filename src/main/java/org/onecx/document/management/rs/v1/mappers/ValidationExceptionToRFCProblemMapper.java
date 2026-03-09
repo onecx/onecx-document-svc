@@ -1,4 +1,4 @@
-package org.onecx.document.management.rs.v1;
+package org.onecx.document.management.rs.v1.mappers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +44,6 @@ public class ValidationExceptionToRFCProblemMapper implements ExceptionMapper<Va
     @Override
     public Response toResponse(ValidationException exception) {
 
-        log.error("REST exception URL:{},ERROR:{}", uriInfo.getRequestUri(), exception.getMessage());
         log.error("REST exception error!", exception);
         return createResponse(exception);
     }
