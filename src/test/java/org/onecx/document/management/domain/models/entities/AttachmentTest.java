@@ -22,20 +22,14 @@ class AttachmentTest {
 
         Attachment attachment = new Attachment();
 
-        attachment.setStorage("1020");
-        attachment.setExternalStorageURL("dd");
         attachment.setSizeUnit(AttachmentUnit.BYTES);
         attachment.setSize(BigDecimal.ZERO);
         attachment.setFile("Document File");
 
-        String Storage = attachment.getStorage();
-        String ExternalStorageURL = attachment.getExternalStorageURL();
         AttachmentUnit SizeUnit = attachment.getSizeUnit();
         BigDecimal Size = attachment.getSize();
         String File = attachment.getFile();
 
-        assertThat(Storage, equalTo("1020"));
-        assertThat(ExternalStorageURL, equalTo("dd"));
         assertThat(SizeUnit, equalTo(AttachmentUnit.BYTES));
         assertThat(Size, equalTo(BigDecimal.ZERO));
         assertThat(File, equalTo("Document File"));

@@ -173,8 +173,6 @@ public interface DocumentMapper {
     @Mapping(target = "mimeType", ignore = true)
     @Mapping(target = "size", ignore = true)
     @Mapping(target = "sizeUnit", ignore = true)
-    @Mapping(target = "storage", ignore = true)
-    @Mapping(target = "externalStorageURL", ignore = true)
     @Mapping(target = "storageUploadStatus", ignore = true)
     Attachment updateAttachment(AttachmentCreateUpdateDTO dto, @MappingTarget Attachment entity);
 
@@ -190,12 +188,10 @@ public interface DocumentMapper {
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "validFor", ignore = true)
-    @Mapping(target = "externalStorageURL", ignore = true)
     @Mapping(target = "mimeType", ignore = true)
     @Mapping(target = "file", ignore = true)
     @Mapping(target = "fileName", ignore = true)
     @Mapping(target = "sizeUnit", ignore = true)
-    @Mapping(target = "storage", ignore = true)
     Attachment updateAttachment(AttachmentMetadataUploadDTO dto, @MappingTarget Attachment attachment);
 
     @Mapping(target = "creationDate", ignore = true)
@@ -208,8 +204,6 @@ public interface DocumentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "size", ignore = true)
     @Mapping(target = "sizeUnit", ignore = true)
-    @Mapping(target = "storage", ignore = true)
-    @Mapping(target = "externalStorageURL", ignore = true)
     @Mapping(target = "storageUploadStatus", ignore = true)
     @Mapping(target = "mimeType", ignore = true)
     Attachment mapAttachment(AttachmentCreateUpdateDTO dto);

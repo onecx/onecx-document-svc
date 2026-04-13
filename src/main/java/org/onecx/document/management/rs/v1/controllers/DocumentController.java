@@ -1,11 +1,5 @@
 package org.onecx.document.management.rs.v1.controllers;
 
-import static io.quarkus.scheduler.Scheduled.ConcurrentExecution.PROCEED;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -16,16 +10,12 @@ import java.util.function.Predicate;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.StreamingOutput;
 
-import org.jboss.resteasy.reactive.server.multipart.MultipartFormDataInput;
 import org.onecx.document.management.domain.criteria.DocumentSearchCriteria;
 import org.onecx.document.management.domain.daos.AttachmentDAO;
 import org.onecx.document.management.domain.daos.ChannelDAO;
 import org.onecx.document.management.domain.daos.DocumentDAO;
-import org.onecx.document.management.domain.daos.MinioAuditLogDAO;
 import org.onecx.document.management.domain.daos.StorageUploadAuditDAO;
 import org.onecx.document.management.domain.models.entities.*;
 import org.onecx.document.management.rs.v1.exception.RestException;
@@ -35,11 +25,8 @@ import org.tkit.quarkus.jpa.daos.PageResult;
 
 import gen.org.onecx.document.management.rs.v1.DocumentControllerV1Api;
 import gen.org.onecx.document.management.rs.v1.model.DocumentCreateUpdateDTO;
-import gen.org.onecx.document.management.rs.v1.model.DocumentResponseDTO;
 import gen.org.onecx.document.management.rs.v1.model.DocumentSearchCriteriaDTO;
-import io.minio.errors.*;
 import io.quarkus.logging.Log;
-import io.quarkus.scheduler.Scheduled;
 
 @ApplicationScoped
 public class DocumentController implements DocumentControllerV1Api {
@@ -57,51 +44,12 @@ public class DocumentController implements DocumentControllerV1Api {
     StorageUploadAuditDAO storageUploadAuditDAO;
 
     @Inject
-    MinioAuditLogDAO minioAuditLogDAO;
-
-    @Inject
     DocumentMapper documentMapper;
 
     @Inject
     DocumentService documentService;
 
     public static final DateTimeFormatter CUSTOM_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-    // The response from the download attachment zip API will have this as the
-    // Content-Disposition header value.
-    public static final String ATTACHMENT_ZIP_CONTENT_DISPOSITION_HEADER = "attachment; filename=\"attachments.zip\"";
-
-    /**
-     * This scheduler gets triggered at every Saturday at 23:00 hours
-     * This scheduler deletes all the records from the "dm_attachment" table
-     * when the value of "storage_upload_status" column is "false"
-     */
-    @Transactional
-    @Scheduled(cron = "0 0 23 ? * SAT", concurrentExecution = PROCEED)
-    public void clearFailedFilesFromDBPeriodically() {
-        attachmentDAO.deleteAttachmentsBasedOnFileUploadStatus();
-    }
-
-    /**
-     * This scheduler gets triggered at every Sunday at 23:00 hours
-     * It calls the getAllRecords method of MinioAuditLogDAO class
-     * If the returned list is not null then all objects are iterated over a loop
-     * and
-     * it calls the deleteFileInAttachmentAsync method to delete object from Minio
-     * storage
-     * it then deletes that specific record from the MinioAuditLog table
-     */
-    @Transactional
-    @Scheduled(cron = "0 0 23 ? * SUN", concurrentExecution = PROCEED)
-    public void deleteAllRecordsFromMinioAuditLog() {
-        List<MinioAuditLog> minioAuditLogAllRecords = minioAuditLogDAO.getAllRecords();
-        if (!Objects.isNull(minioAuditLogAllRecords)) {
-            minioAuditLogAllRecords.stream().forEach(auditRecord -> {
-                documentService.deleteFileInAttachmentAsync(auditRecord.getAttachmentId());
-                minioAuditLogDAO.delete(auditRecord);
-            });
-        }
-    }
 
     @Override
     public Response getDocumentById(String id) {
@@ -135,14 +83,11 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response deleteDocumentById(String id) {
-        List<String> listOfFilesIdToBeDeleted = new ArrayList<>();
         var document = documentDAO.findById(id);
         if (Objects.isNull(document)) {
             throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND, getDocumentNotFoundMsg(id));
         }
-        listOfFilesIdToBeDeleted.addAll(documentService.getFilesIdToBeDeletedInDocument(document));
         documentDAO.delete(document);
-        listOfFilesIdToBeDeleted.stream().forEach(eachFileId -> documentService.asyncDeleteForAttachments(eachFileId));
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
@@ -151,21 +96,6 @@ public class DocumentController implements DocumentControllerV1Api {
         var document = documentService.createDocument(documentCreateUpdateDTO);
         return Response.status(Response.Status.CREATED)
                 .entity(documentMapper.mapDetail(document))
-                .build();
-    }
-
-    @Override
-    public Response uploadAllFiles(String documentId, MultipartFormDataInput input) {
-        Map<String, Integer> map = null;
-        try {
-            map = documentService.uploadAttachment(documentId, input);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        var responseDTO = new DocumentResponseDTO();
-        responseDTO.setAttachmentResponse(map);
-        return Response.status(Response.Status.CREATED)
-                .entity(responseDTO)
                 .build();
     }
 
@@ -209,59 +139,6 @@ public class DocumentController implements DocumentControllerV1Api {
     }
 
     @Override
-    public Response getFile(String attachmentId) {
-        var attachment = attachmentDAO.findById(attachmentId);
-        if (Objects.isNull(attachment)) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        try (InputStream object = documentService.getObjectFromObjectStore(attachmentId)) {
-            return Response.ok(object)
-                    .header("Content-Disposition", String.format("attachment;filename=%s", attachment.getFileName()))
-                    .build();
-        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException | NoSuchAlgorithmException
-                | InvalidKeyException | InvalidResponseException | XmlParserException | InternalException e) {
-            throw new RestException(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR,
-                    e.getMessage());
-        }
-    }
-
-    @Override
-    public Response getAllDocumentAttachmentsAsZip(String documentId, String clientTimezone) {
-        try {
-            StreamingOutput stream = documentService.getAttachmentsZipStream(documentId, clientTimezone);
-            if (stream == null) {
-                return Response.status(Response.Status.NO_CONTENT).build();
-            }
-            return Response.ok(stream)
-                    .header("Content-Disposition", ATTACHMENT_ZIP_CONTENT_DISPOSITION_HEADER)
-                    .type("application/zip")
-                    .build();
-        } catch (RestException e) {
-            if (e.getStatus() == Response.Status.BAD_REQUEST) {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(e)
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(e)
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-
-    }
-
-    @Override
-    @Transactional
-    public Response deleteFilesInBulk(List<String> attachmentIds) {
-        documentService.updateAttachmentStatusInBulk(attachmentIds);
-        attachmentIds.stream().forEach(attachmentId -> documentService.asyncDeleteForAttachments(attachmentId));
-        return Response.noContent().build();
-    }
-
-    @Override
     @Transactional
     public Response bulkUpdateDocument(List<DocumentCreateUpdateDTO> documentCreateUpdateDTO) {
         Iterator<DocumentCreateUpdateDTO> it = documentCreateUpdateDTO.listIterator();
@@ -288,7 +165,6 @@ public class DocumentController implements DocumentControllerV1Api {
     @Override
     @Transactional
     public Response deleteBulkDocuments(List<String> requestBody) {
-        List<String> listOfFilesIdToBeDeleted = new ArrayList<>();
         Iterator<String> itr = requestBody.iterator();
         while (itr.hasNext()) {
             String currentDocId = itr.next();
@@ -297,9 +173,7 @@ public class DocumentController implements DocumentControllerV1Api {
                 throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
                         getDocumentNotFoundMsg(currentDocId));
             }
-            listOfFilesIdToBeDeleted.addAll(documentService.getFilesIdToBeDeletedInDocument(document));
             documentDAO.delete(document);
-            listOfFilesIdToBeDeleted.stream().forEach(eachFileId -> documentService.asyncDeleteForAttachments(eachFileId));
         }
         return Response.status(Response.Status.NO_CONTENT).build();
     }

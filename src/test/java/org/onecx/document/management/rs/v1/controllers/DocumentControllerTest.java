@@ -2,15 +2,12 @@ package org.onecx.document.management.rs.v1.controllers;
 
 import static io.restassured.RestAssured.given;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.CREATED;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.onecx.document.management.test.AbstractTest.USER;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,13 +15,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 
-import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.onecx.document.management.domain.daos.MinioAuditLogDAO;
 import org.onecx.document.management.rs.v1.models.PageResultDTO;
 import org.onecx.document.management.rs.v1.models.RFCProblemDTO;
 import org.onecx.document.management.test.AbstractTest;
@@ -68,39 +62,13 @@ class DocumentControllerTest extends AbstractTest {
     private static final String RELATED_PARTY_ID = "1";
     private static final int NUMBER_OF_CATEGORIES_RELATIONSHIPS_OF_DOCUMENT_1 = 3;
     private static final int NUMBER_OF_ATTACHMENTS_RELATIONSHIPS_OF_DOCUMENT_1 = 2;
-    private static final String ZIP_CONTENT_TYPE = "application/zip";
-    private static final String SAMPLE_FILE_PATH_1 = "src/test/resources/105";
-    private static final String SAMPLE_FILE_PATH_2 = "src/test/resources/106";
-    private static final String FORM_PARAM_FILE = "file";
-    private static final String FILE_BASE_PATH = "/v1/files/";
-    private static final String BUCKET_NAME = "test-bucket";
-    private static final String MINIO_FILE_PATH_1 = "105";
-    private static final String MINIO_FILE_PATH_2 = "106";
-    private static final String EXISTING_DOCUMENT_ID_5 = "55";
-    private static final String INVALID_MINIO_FILE_PATH_1 = "10001";
-    private static final String INVALID_MINIO_FILE_PATH_2 = "10002";
-    private static final String NONEXISTENT_ATTACHMENT_ID = "1001";
-    private static final String EXISTING_ATTACHMENT_ID = "105";
     private static final String EXISTING_DOCUMENT_ID_2 = "52";
     private static final String EXISTING_DOCUMENT_ID_4 = "54";
     private static final String NONEXISTENT_DOCUMENT_ID_2 = "1001";
     private static final String UPDATED_DOCUMENT_NAME = "updated_document_name";
     private static final String UPDATED_DOCUMENT_TYPE = "203";
     private static final String UPDATED_DOCUMENT_DESCRIPTION = "updated_description";
-    private static final String SAMPLE_JPG_FILE1 = "src/test/resources/sample.jpg";
-    private static final String SAMPLE_JPG_FILE2 = "src/test/resources/sample2.jpg";
-    private static final String SAMPLE_TEXT_FILE1 = "src/test/resources/file1.txt";
-    private static final String VALID_DOCUMENT_ID_WITH_ATTACHMENTS = "56";
-    private static final String API_PATH_MULTIPLE_FILE_UPLOADS = "/files/upload/";
     private static final String DIRECTORY_SEPERATOR = "/";
-    private static final String SAMPLE_FILE_PATH = "src/test/resources/sample.jpg";
-    private static final String MINIO_FILE_PATH_3 = "110";
-    private static final String SAMPLE_FILE_TYPE = "application/octet-stream";
-    @Inject
-    DocumentController documentController;
-
-    @Inject
-    MinioAuditLogDAO minioAuditLogDAO;
 
     @Test
     @DisplayName("Returns all documents with no criteria given.")
@@ -1769,116 +1737,6 @@ class DocumentControllerTest extends AbstractTest {
         assertThat(channels).hasSize(2);
     }
 
-    @Test
-    @DisplayName("Tests the successful upload of multiple file attachments at once to an existing document for the quick upload feature.")
-    void testSuccessfulMultipleFileUploads() {
-        Response postResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .multiPart(FORM_PARAM_FILE, Paths.get(SAMPLE_TEXT_FILE1).toFile())
-                .multiPart(FORM_PARAM_FILE, Paths.get(SAMPLE_JPG_FILE1).toFile())
-                .multiPart(FORM_PARAM_FILE, Paths.get(SAMPLE_JPG_FILE2).toFile())
-                .when()
-                .post(BASE_PATH + API_PATH_MULTIPLE_FILE_UPLOADS + EXISTING_DOCUMENT_ID_WITHOUT_ATTACHMENTS);
-        postResponse.then().statusCode(CREATED.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Tests the failed upload of multiple file attachments at once to a nonexistent document.")
-    void testFailedMultipleFileUploads() {
-        Response postResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .multiPart(FORM_PARAM_FILE, Paths.get(SAMPLE_JPG_FILE1).toFile())
-                .multiPart(FORM_PARAM_FILE, Paths.get(SAMPLE_JPG_FILE2).toFile())
-                .when()
-                .post(BASE_PATH + API_PATH_MULTIPLE_FILE_UPLOADS + NONEXISTENT_DOCUMENT_ID);
-        postResponse.then().statusCode(NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Uploads attachment to Minio incase of Create New Document and Quick Upload")
-    void testSuccessfulUploadAttachmentForNewCreate() {
-        File file1 = new File(SAMPLE_JPG_FILE1);
-        File file2 = new File(SAMPLE_JPG_FILE2);
-        Response postResponse = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .multiPart(FORM_PARAM_FILE, file1)
-                .multiPart(FORM_PARAM_FILE, file2)
-                .when()
-                .post(BASE_PATH + API_PATH_MULTIPLE_FILE_UPLOADS + VALID_DOCUMENT_ID_WITH_ATTACHMENTS);
-        postResponse.then().statusCode(CREATED.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Edits the attachment's file object in Minio incase of editing attachments")
-    void testSuccessfulUploadAttachmentForEditAttachment() {
-        File file1 = new File(SAMPLE_JPG_FILE1);
-        File file2 = new File(SAMPLE_JPG_FILE2);
-        Response postResponse = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .multiPart(FORM_PARAM_FILE, Paths.get(SAMPLE_TEXT_FILE1).toFile(), ContentType.TEXT_PLAIN.getMimeType())
-                .multiPart(FORM_PARAM_FILE, file1)
-                .multiPart(FORM_PARAM_FILE, file2)
-                .when()
-                .post(BASE_PATH + API_PATH_MULTIPLE_FILE_UPLOADS + VALID_DOCUMENT_ID_WITH_ATTACHMENTS);
-        postResponse.then().statusCode(CREATED.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Test method for cleanup of failed files.")
-    void testSuccessfulDbCleanupOfFailedAttachments() {
-        documentController.clearFailedFilesFromDBPeriodically();
-        Response getResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .when()
-                .get(BASE_PATH + "/file/" + "57" + "/attachments");
-        getResponse.then().statusCode(204);
-    }
-
-    @Test
-    @DisplayName("Test method for cleanup of a Minio Audit Log record for which there is an attachment file in Minio.")
-    void testSuccessfulDeleteOfMinioAuditLogRecordHavingFileinMinio() {
-        File sampleFile = new File(SAMPLE_FILE_PATH);
-        Response putResponse = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .multiPart(FORM_PARAM_FILE, sampleFile)
-                .when()
-                .put(FILE_BASE_PATH + BUCKET_NAME + "/" + MINIO_FILE_PATH_3);
-        putResponse.then().statusCode(201);
-        FileInfoDTO file = putResponse.as(FileInfoDTO.class);
-
-        assertThat(file.getPath()).isEqualTo(MINIO_FILE_PATH_3);
-        assertThat(file.getContentType()).isEqualTo(SAMPLE_FILE_TYPE);
-        assertThat(file.getBucket()).isEqualTo(BUCKET_NAME);
-
-        assertThat(minioAuditLogDAO.getAllRecords()).hasSize(1);
-        documentController.deleteAllRecordsFromMinioAuditLog();
-        assertThat(minioAuditLogDAO.getAllRecords()).isEmpty();
-    }
-
-    //     @Test
-    //     @DisplayName("Test method for cleanup of a Minio Audit Log record for which there is no attachment file in Minio.")
-    //     void testFailedDeleteOfMinioAuditLogRecordHavingNoFileinMinio() {
-    //         var minioAuditLog = new MinioAuditLog();
-    //         minioAuditLog.setAttachmentId("temp");
-    //         minioAuditLogDAO.create(minioAuditLog);
-
-    //         Exception exception = assertThrows(CustomException.class, () -> {
-    //             documentController.deleteAllRecordsFromMinioAuditLog();
-    //         });
-
-    //         String expectedMessage = "An error occurred while deleting the attachment file.";
-    //         String actualMessage = exception.getMessage();
-    //         assertThat(actualMessage).isEqualTo(expectedMessage);
-    //     }
-
     private TypeRef<List<ChannelDTO>> getChannelDTOTypeRef() {
         return new TypeRef<>() {
         };
@@ -1888,37 +1746,6 @@ class DocumentControllerTest extends AbstractTest {
         return new TypeRef<>() {
         };
 
-    }
-
-    @Test
-    @DisplayName("Get File By Existing Attachment Id")
-    void testSuccessfulGetFileById() {
-        File sampleFile1 = new File(SAMPLE_FILE_PATH_1);
-
-        Response putResponse = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .multiPart(FORM_PARAM_FILE, sampleFile1)
-                .when()
-                .put(FILE_BASE_PATH + BUCKET_NAME + DIRECTORY_SEPERATOR + MINIO_FILE_PATH_1);
-        putResponse.then().statusCode(201);
-
-        Response response = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .when()
-                .get(BASE_PATH + "/file/" + EXISTING_ATTACHMENT_ID);
-        response.then().statusCode(200);
-    }
-
-    @Test
-    @DisplayName("Get File By Non-Existing Id Failed")
-    void testFailedGetFileById() {
-        Response response = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .when()
-                .get(BASE_PATH + "/file/" + NONEXISTENT_ATTACHMENT_ID);
-        response.then().statusCode(NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -2015,186 +1842,6 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .put(BASE_PATH + "/bulkupdate");
         postResponse.then().statusCode(NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Bulk Delete of existing document's attachments")
-    void testSuccessfulDeleteAttachmentFilesInBulk() {
-        given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .when()
-                .post(FILE_BASE_PATH + "bucket/" + BUCKET_NAME)
-                .then().log().all().statusCode(201);
-
-        File sampleFile1 = new File(SAMPLE_FILE_PATH_1);
-        File sampleFile2 = new File(SAMPLE_FILE_PATH_2);
-        Response putResponse1 = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .multiPart(FORM_PARAM_FILE, sampleFile1)
-                .when()
-                .put(FILE_BASE_PATH + BUCKET_NAME + DIRECTORY_SEPERATOR + MINIO_FILE_PATH_1);
-        putResponse1.then().statusCode(201);
-        Response putResponse2 = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .multiPart(FORM_PARAM_FILE, sampleFile2)
-                .when()
-                .put(FILE_BASE_PATH + BUCKET_NAME + DIRECTORY_SEPERATOR + MINIO_FILE_PATH_2);
-        putResponse2.then().statusCode(201);
-
-        List<String> attachmentIds = new ArrayList<>();
-        attachmentIds.add(MINIO_FILE_PATH_1);
-        attachmentIds.add(MINIO_FILE_PATH_2);
-
-        Response deleteResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(attachmentIds)
-                .when()
-                .delete(BASE_PATH + "/file/delete-bulk-attachment");
-        deleteResponse.then().statusCode(NO_CONTENT.getStatusCode());
-
-        /*
-         * Response deleteMinioResponse1 = given()
-         * .when()
-         * .delete(FILE_BASE_PATH + BUCKET_NAME + "/" + MINIO_FILE_PATH_1).andReturn();
-         * deleteMinioResponse1.then().statusCode(201);
-         * Response deleteMinioResponse2 = given()
-         * .when()
-         * .delete(FILE_BASE_PATH + BUCKET_NAME + "/" + MINIO_FILE_PATH_2).andReturn();
-         * deleteMinioResponse2.then().statusCode(201);
-         */
-
-    }
-
-    @Test
-    @DisplayName("Bulk Delete of existing document's attachments")
-    void testSuccessfulDeleteFilesInBulk() {
-        List<String> attachmentIds = new ArrayList<>();
-        attachmentIds.add(MINIO_FILE_PATH_1);
-        attachmentIds.add(MINIO_FILE_PATH_2);
-        Response deleteResponse = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(attachmentIds)
-                .when()
-                .delete(BASE_PATH + "/file/delete-bulk-attachment");
-        assertThat(deleteResponse.statusCode()).isEqualTo(204);
-    }
-
-    @Test
-    @DisplayName("Bulk Delete of non-existing document's attachments")
-    void testFailedDeleteAttachmentFilesInBulk() {
-        List<String> attachmentIds = new ArrayList<>();
-        attachmentIds.add(INVALID_MINIO_FILE_PATH_1);
-        attachmentIds.add(INVALID_MINIO_FILE_PATH_2);
-
-        Response deleteResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(attachmentIds)
-                .when()
-                .delete(BASE_PATH + "/file/delete-bulk-attachment");
-        assertThat(deleteResponse.statusCode()).isEqualTo(404);
-    }
-
-    @Test
-    @DisplayName("Get All existing Document's Attachments As Zip")
-    void testSuccessfulGetAllDocumentAttachmentsAsZip() {
-        Response getResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .when()
-                .get(BASE_PATH + "/file/" + EXISTING_DOCUMENT_ID + "/attachments");
-        getResponse.then().statusCode(200);
-        getResponse.then().contentType(ZIP_CONTENT_TYPE);
-    }
-
-    @Test
-    @DisplayName("Get All existing Document's Attachments As Zip with client timezone")
-    void testSuccessfulGetAllDocumentAttachmentsAsZipWithClientTimezone() {
-        Response getResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .header("client-timezone", "UTC")
-                .when()
-                .get(BASE_PATH + "/file/" + EXISTING_DOCUMENT_ID + "/attachments");
-        getResponse.then().statusCode(200);
-        getResponse.then().contentType(ZIP_CONTENT_TYPE);
-    }
-
-    @Test
-    @DisplayName("Get All non-existing Document's Attachments As Zip")
-    void testFailedGetAllDocumentAttachmentsAsZip() {
-        Response getResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .when()
-                .get(BASE_PATH + "/file/" + NONEXISTENT_DOCUMENT_ID + "/attachments");
-        getResponse.then().statusCode(400);
-    }
-
-    //     @Test
-    //     @DisplayName("Get All existing Document's Attachments As Zip. Test fails when we mock an exception.")
-    //     void testExceptionInGetAllDocumentAttachmentsAsZip() {
-    //         DocumentDAO documentDAO = mock(DocumentDAO.class);
-    //         doThrow(new RuntimeException("Internal Server Error")).when(documentDAO).findById(anyString()); // Simulating document not found
-
-    //         DocumentController documentController = new DocumentController();
-    //         documentController.documentDAO = documentDAO;
-
-    //         Response getResponse = given()
-    //                 .auth()
-    //                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
-    //                 .accept(MediaType.APPLICATION_OCTET_STREAM)
-    //                 .when()
-    //                 .get(BASE_PATH + "/file/" + EXISTING_DOCUMENT_ID + "/attachments");
-
-    //         getResponse.then().statusCode(500);
-    //         getResponse.then().contentType(MediaType.APPLICATION_JSON);
-    //     }
-
-    @Test
-    @DisplayName("Get existing document's with no attachments as zip")
-    void testGetAllDocumentWithNoAttachmentsAsZip() {
-        Response getResponse = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .when()
-                .get(BASE_PATH + "/file/" + EXISTING_DOCUMENT_ID_WITHOUT_ATTACHMENTS + "/attachments");
-        getResponse.then().statusCode(204);
-    }
-
-    @Test
-    @DisplayName("Get All existing Document's Attachments from Minio As Zip")
-    void testSuccessfulGetAllDocumentAttachmentsFromMinioAsZip() {
-        File sampleFile1 = new File(SAMPLE_FILE_PATH_1);
-        File sampleFile2 = new File(SAMPLE_FILE_PATH_2);
-        Response putResponse1 = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .multiPart(FORM_PARAM_FILE, sampleFile1)
-                .when()
-                .put(FILE_BASE_PATH + BUCKET_NAME + DIRECTORY_SEPERATOR + MINIO_FILE_PATH_1);
-        putResponse1.then().statusCode(201);
-        Response putResponse2 = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .multiPart(FORM_PARAM_FILE, sampleFile2)
-                .when()
-                .put(FILE_BASE_PATH + BUCKET_NAME + DIRECTORY_SEPERATOR + MINIO_FILE_PATH_2);
-        putResponse2.then().statusCode(201);
-        Response getResponse = given().auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .when()
-                .get(BASE_PATH + "/file/" + EXISTING_DOCUMENT_ID_5 + "/attachments");
-        getResponse.then().statusCode(200);
-        getResponse.then().contentType(ZIP_CONTENT_TYPE);
     }
 
     @Test

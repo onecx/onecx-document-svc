@@ -89,13 +89,6 @@
             <artifactId>quarkus-scheduler</artifactId>
         </dependency>
 
-        <!-- QUARKIVERSE-->
-        <dependency>
-            <groupId>io.quarkiverse.minio</groupId>
-            <artifactId>quarkus-minio</artifactId>
-            <version>3.8.5</version>
-        </dependency>
-
         <!-- OTHERS-->
         <dependency>
             <groupId>org.projectlombok</groupId>

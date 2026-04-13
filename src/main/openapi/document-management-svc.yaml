@@ -8,7 +8,6 @@ tags:
   - name: DocumentControllerV1
   - name: DocumentSpecificationControllerV1
   - name: DocumentTypeControllerV1
-  - name: FileControllerV1
   - name: SupportedMimeTypeControllerV1
   - name: AttachmentControllerV1
 paths:
@@ -493,104 +492,6 @@ paths:
                 $ref: '#/components/schemas/RFCProblem'
         "401":
           description: Not Authorized
-  /v1/document/file/delete-bulk-attachment:
-    delete:
-      security:
-        - oauth2: [ ocx-doc:all, ocx-doc:write]
-      tags:
-        - DocumentControllerV1
-      description: Delete attachment's files in bulk
-      operationId: deleteFilesInBulk
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: string
-      responses:
-        "204":
-          description: No Content
-        "403":
-          description: Not Authorized
-        "404":
-          description: Not found
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestException'
-        "401":
-          description: Not Authorized
-  /v1/document/file/{attachmentId}:
-    get:
-      tags:
-        - DocumentControllerV1
-      description: Get attachment's file
-      operationId: getFile
-      parameters:
-        - name: attachmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/octet-stream:
-              schema:
-                format: binary
-                type: string
-        "404":
-          description: Not found
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestException'
-  /v1/document/file/{documentId}/attachments:
-    get:
-      security:
-        - oauth2: [ ocx-doc:all, ocx-doc:write, ocx-doc:read]
-      tags:
-        - DocumentControllerV1
-      description: Get all the attachments of the document packaged in a zip file
-      operationId: getAllDocumentAttachmentsAsZip
-      parameters:
-        - name: documentId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: client-timezone
-          in: header
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/octet-stream:
-              schema:
-                format: binary
-                type: string
-        "400":
-          description: Bad request
-        "204":
-          description: No content
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestException'
-        "401":
-          description: Not Authorized
-        "403":
-          description: Not Allowed
   /v1/document/files/upload/failed/{id}:
     get:
       security:
@@ -778,121 +679,6 @@ paths:
                 $ref: '#/components/schemas/RFCProblem'
         "401":
           description: Not Authorized
-  /v1/files/bucket/{name}:
-    post:
-      tags:
-        - FileControllerV1
-      summary: Creates a bucket with the given name
-      description: Create a bucket
-      operationId: createBucket
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "201":
-          description: Created
-        "400":
-          description: Bad request
-        "403":
-          description: Not Authorized
-        "500":
-          description: Internal Server Error
-  /v1/files/{bucket}/{path}:
-    get:
-      tags:
-        - FileControllerV1
-      summary: Download file contents
-      operationId: downloadFile
-      parameters:
-        - name: bucket
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: path
-          in: path
-          required: true
-          schema:
-            pattern: '.+'
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/octet-stream:
-              schema:
-                format: binary
-                type: string
-        "404":
-          description: Not found
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestException'
-    put:
-      tags:
-        - FileControllerV1
-      summary: Uploads a file to the given location
-      description: Uploads the file
-      operationId: uploadFile
-      parameters:
-        - name: bucket
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: path
-          in: path
-          required: true
-          schema:
-            pattern: .+
-            type: string
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/FileMultipartBody'
-      responses:
-        "201":
-          description: Created
-        "400":
-          description: Bad request
-        "403":
-          description: Not Authorized
-        "500":
-          description: Internal Server Error
-    delete:
-      tags:
-        - FileControllerV1
-      summary: Deletes the file from Minio object storage
-      description: Deletes the file
-      operationId: deleteFile
-      parameters:
-        - name: bucket
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: path
-          in: path
-          required: true
-          schema:
-            pattern: .+
-            type: string
-      responses:
-        "201":
-          description: File Deleted
-        "403":
-          description: Not Authorized
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
   /v1/supported-mime-type:
     get:
       tags:
@@ -1047,47 +833,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RFCProblem'
-  /v1/document/files/upload/{documentId}:
-    post:
-      tags:
-        - DocumentControllerV1
-      operationId: uploadAllFiles
-      description: uploads all the files
-      parameters:
-        - name: documentId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                files:
-                  type: MultipartFormDataInput
-                  description: upload the multipart files
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DocumentResponse'
-        '400':
-          description: Bad request
-        '403':
-          description: Not Authorized
-        '404':
-          description: Not found
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestException'
   /v1/attachment/metadata:
     patch:
       tags:
@@ -1206,10 +951,6 @@ components:
           $ref: '#/components/schemas/AttachmentUnit'
         validFor:
           $ref: '#/components/schemas/TimePeriod'
-        storage:
-          type: string
-        externalStorageURL:
-          type: string
         mimeType:
           $ref: '#/components/schemas/SupportedMimeType'
         fileName:
@@ -1898,33 +1639,6 @@ components:
           type: string
         documentId:
           type: string
-    DocumentResponse:
-      allOf:
-        - $ref: '#/components/schemas/Traceable'
-        - type: object
-          properties:
-            attachmentResponse:
-              type: object
-              additionalProperties:
-                type: integer
-              description: Map of attachment names to their response codes
-    FileMultipartBody:
-      type: object
-      properties:
-        file:
-          type: File
-    FileInfo:
-      type: object
-      properties:
-        contentType:
-          type: string
-          description: Type of file based on the InputStream.
-        path:
-          type: string
-          description: The path of the file.
-        bucket:
-          type: string
-          description: Name of bucket.
     ProblemDetailResponse:
       type: object
       properties:

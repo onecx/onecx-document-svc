@@ -1,0 +1,23 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2026-04-09-1" author="dev (generated)">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="dm_minio_audit_log"/>
+        </preConditions>
+        <dropTable tableName="dm_minio_audit_log"/>
+    </changeSet>
+
+    <changeSet id="2026-04-09-2" author="dev (generated)">
+        <dropColumn tableName="dm_attachment" columnName="storage"/>
+    </changeSet>
+
+    <changeSet id="2026-04-09-3" author="dev (generated)">
+        <dropColumn tableName="dm_attachment" columnName="storage_url"/>
+    </changeSet>
+
+</databaseChangeLog>

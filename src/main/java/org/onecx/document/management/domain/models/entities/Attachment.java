@@ -59,16 +59,6 @@ public class Attachment extends TraceableEntity {
     @Embedded
     private TimePeriod validFor;
     /**
-     * Storage of teh attachment.
-     */
-    @Column(name = "STORAGE")
-    private String storage;
-    /**
-     * External storage URL of the attachment.
-     */
-    @Column(name = "STORAGE_URL")
-    private String externalStorageURL;
-    /**
      * An attachment mimeType reference.
      */
     @ManyToOne(fetch = FetchType.EAGER)
