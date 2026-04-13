@@ -94,7 +94,7 @@ public class ExceptionToRFCProblemMapper implements ExceptionMapper<Exception> {
                 .type(RFCProblemType.REST_EXCEPTION.name())
                 .title(TECHNICAL_ERROR)
                 .status(restException.getStatus().getStatusCode())
-                .detail(restException.getParameters().get(0).toString())
+                .detail(getRestResponseDetail(restException))
                 .problems(createRfcProblemDetailDTOs(restException.getCause()))
                 .build();
 
@@ -166,6 +166,13 @@ public class ExceptionToRFCProblemMapper implements ExceptionMapper<Exception> {
                 .type(MediaType.APPLICATION_JSON)
                 .entity(rfcProblemDTO)
                 .build();
+    }
+
+    private String getRestResponseDetail(RestException exception) {
+        if (exception.getParameters().isEmpty()) {
+            return null;
+        }
+        return exception.getParameters().get(0).toString();
     }
 
     /**

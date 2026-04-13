@@ -10,6 +10,7 @@ tags:
   - name: DocumentTypeControllerV1
   - name: FileControllerV1
   - name: SupportedMimeTypeControllerV1
+  - name: AttachmentControllerV1
 paths:
   /v1/document/search:
     post:
@@ -1087,7 +1088,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RestException'
-
+  /v1/attachment/metadata:
+    patch:
+      tags:
+        - AttachmentControllerV1
+      operationId: uploadAttachmentsMetadata
+      description: Upload metadata for selected attachments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentMetadataUpload'
+      responses:
+        "200":
+          description: Metadata updated
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailResponse'
+  /v1/attachment/storage-audit:
+    post:
+      tags:
+        - AttachmentControllerV1
+      operationId: createStorageAuditsForAttachments
+      description: Create storage audit log for failed attachments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentStorageAuditRequest'
+      responses:
+        "201":
+          description: Storage audit logs created
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailResponse'
+  /v1/attachment/{attachmentId}:
+    get:
+      tags:
+        - AttachmentControllerV1
+      operationId: getAttachmentDetails
+      description: get details of given attachment
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailResponse'
 components:
   schemas:
     AttachmentCreateUpdate:
@@ -1812,7 +1881,23 @@ components:
         lastModifiedDate:
           type: string
           format: date-time
-
+    AttachmentMetadataUpload:
+      type: object
+      properties:
+        attachmentId:
+          type: string
+        size:
+          type: integer
+          format: int64
+        type:
+          type: string
+    AttachmentStorageAuditRequest:
+      type: object
+      properties:
+        attachmentId:
+          type: string
+        documentId:
+          type: string
     DocumentResponse:
       allOf:
         - $ref: '#/components/schemas/Traceable'
@@ -1840,6 +1925,35 @@ components:
         bucket:
           type: string
           description: Name of bucket.
+    ProblemDetailResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailParam'
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailInvalidParam'
+    ProblemDetailParam:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    ProblemDetailInvalidParam:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string
   securitySchemes:
     oauth2:
       type: oauth2

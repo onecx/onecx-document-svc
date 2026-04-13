@@ -9,11 +9,17 @@ import java.util.Map;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
 public class RestException extends RuntimeException {
     private Response.Status status;
     private Enum<?> errorCode;
     private List<Object> parameters;
     private Map<String, Object> namedParameters;
+    private String message;
 
     public RestException(Enum<?> errorCode) {
         this(errorCode, Status.INTERNAL_SERVER_ERROR);
@@ -89,21 +95,5 @@ public class RestException extends RuntimeException {
         } else {
             return errorCode.name();
         }
-    }
-
-    public Response.Status getStatus() {
-        return this.status;
-    }
-
-    public Enum<?> getErrorCode() {
-        return this.errorCode;
-    }
-
-    public List<Object> getParameters() {
-        return this.parameters;
-    }
-
-    public Map<String, Object> getNamedParameters() {
-        return this.namedParameters;
     }
 }
