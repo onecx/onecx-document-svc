@@ -1,17 +1,17 @@
 apiVersion: v2
-name: onecx-document-management-svc
-version: 999-SNAPSHOT
-appVersion: 999-SNAPSHOT
-description: onecx document management
+name: onecx-document-svc
+version: 0.0.0
+appVersion: 0.0.0
+description: Onecx document service
 keywords:
-  - document management
+  - tenant
 sources:
-  - https://github.com/onecx-apps/onecx-document-management-svc
+  - https://github.com/onecx/onecx-document-svc
 maintainers:
   - name: Tkit Developer
     email: tkit_dev@1000kit.org
 dependencies:
   - name: helm-quarkus-app
     alias: app
-    version: ^0
+    version: 0.42.0
     repository: oci://ghcr.io/onecx/charts

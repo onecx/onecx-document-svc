@@ -1,5 +1,5 @@
 
-include::onecx-document-management-svc-attributes.adoc[opts=optional]
+include::onecx-document-svc-attributes.adoc[opts=optional]
 
 {docker-registry}[Link to Docker registry]
 
@@ -42,7 +42,7 @@ quarkus.jacoco.excludes=**/mappers/*
 .Extensions List
 [%collapsible]
 ====
-include::onecx-document-management-svc-extensions.adoc[opts=optional]
+include::onecx-document-svc-extensions.adoc[opts=optional]
 ====
 
 == Helm
@@ -54,7 +54,7 @@ include::onecx-document-management-svc-extensions.adoc[opts=optional]
 ----
 app:
   image:
-    repository: "onecx-apps/onecx-document-management-svc"
+    repository: "onecx-apps/onecx-document-svc"
   db:
     enabled: true
   product: false

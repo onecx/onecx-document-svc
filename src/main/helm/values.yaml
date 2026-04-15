@@ -1,6 +1,17 @@
 app:
+  name: svc
   image:
-    repository: "onecx-apps/onecx-document-management-svc"
+    repository: "onecx/onecx-document-svc"
   db:
     enabled: true
-  product: false
+  operator:
+    keycloak:
+      client:
+        enabled: true
+        spec:
+          kcConfig:
+            defaultClientScopes: [ ocx-tn:read ]
+    microservice:
+      spec:
+        description: OneCX Document Backend Service
+        name: OneCX Document SVC
