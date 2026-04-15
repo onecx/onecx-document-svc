@@ -19,6 +19,7 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.TenantId;
 import org.tkit.onecx.document.domain.models.enums.LifeCycleState;
 import org.tkit.quarkus.jpa.models.TraceableEntity;
 
@@ -31,9 +32,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "DM_DOCUMENT")
+@Table(name = "DOCUMENT")
 @NamedEntityGraph(name = "Document.loadAll", includeAllAttributes = true)
 public class Document extends TraceableEntity {
+
+    @TenantId
+    @Column(name = "TENANT_ID")
+    private String tenantId;
+
     /**
      * Name of the document.
      */
@@ -59,7 +65,7 @@ public class Document extends TraceableEntity {
      * The set of document tags.
      */
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "DM_DOCUMENT_TAGS")
+    @CollectionTable(name = "DOCUMENT_TAGS")
     @Column(name = "TAGS")
     private Set<String> tags = new HashSet<>();
     /**

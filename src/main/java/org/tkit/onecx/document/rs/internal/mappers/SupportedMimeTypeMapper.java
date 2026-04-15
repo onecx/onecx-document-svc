@@ -14,6 +14,7 @@ import gen.org.tkit.onecx.document.rs.internal.model.SupportedMimeTypeDTO;
 @Mapper(uses = OffsetDateTimeMapper.class)
 public interface SupportedMimeTypeMapper {
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -26,6 +27,7 @@ public interface SupportedMimeTypeMapper {
 
     SupportedMimeTypeDTO mapToDTO(SupportedMimeType supportedMimeType);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)

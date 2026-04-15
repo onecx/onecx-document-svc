@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
+import org.hibernate.annotations.TenantId;
 import org.tkit.onecx.document.domain.models.embeddable.TimePeriod;
 import org.tkit.onecx.document.domain.models.enums.AttachmentUnit;
 import org.tkit.quarkus.jpa.models.TraceableEntity;
@@ -26,8 +27,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "DM_ATTACHMENT")
+@Table(name = "ATTACHMENT")
 public class Attachment extends TraceableEntity {
+
+    @TenantId
+    @Column(name = "TENANT_ID")
+    private String tenantId;
     /**
      * Name of the attachment.
      */

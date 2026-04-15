@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.TenantId;
 import org.tkit.quarkus.jpa.models.TraceableEntity;
 
 import lombok.Getter;
@@ -15,8 +16,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "DM_DOCUMENT_RELATIONSHIP")
+@Table(name = "DOCUMENT_RELATIONSHIP")
 public class DocumentRelationship extends TraceableEntity {
+
+    @TenantId
+    @Column(name = "TENANT_ID")
+    private String tenantId;
+
     /**
      * Type of the relationship.
      */

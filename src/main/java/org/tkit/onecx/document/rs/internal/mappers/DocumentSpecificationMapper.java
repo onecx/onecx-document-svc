@@ -13,6 +13,7 @@ import gen.org.tkit.onecx.document.rs.internal.model.DocumentSpecificationDTO;
 
 @Mapper(uses = OffsetDateTimeMapper.class)
 public interface DocumentSpecificationMapper {
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -25,6 +26,7 @@ public interface DocumentSpecificationMapper {
 
     DocumentSpecificationDTO mapToDTO(DocumentSpecification documentSpecification);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)

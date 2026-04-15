@@ -8,6 +8,24 @@ h| Documentation
 h| Configuration
 h| Version
 
+| onecx-core
+
+| https://onecx.github.io/docs/onecx-quarkus/current/onecx-quarkus/onecx-core.html[Link]
+| 
+| 2.4.0
+
+| onecx-tenant
+
+| https://onecx.github.io/docs/onecx-quarkus/current/onecx-quarkus/onecx-tenant.html[Link]
+| https://github.com/onecx/onecx-quarkus/blob/2.4.0/docs/modules/onecx-quarkus/pages/includes/onecx-tenant.adoc[Link]
+| 2.4.0
+
+| tkit-quarkus-rest-context
+
+| https://1000kit.github.io/tkit-quarkus/current/tkit-quarkus/tkit-quarkus-rest-context.html[Link]
+| https://github.com/1000kit/tkit-quarkus/blob/4.6.0/docs/modules/tkit-quarkus/pages/includes/tkit-quarkus-rest-context.adoc[Link]
+| 4.6.0
+
 | tkit-quarkus-log-rs
 
 | https://1000kit.github.io/tkit-quarkus/current/tkit-quarkus/tkit-quarkus-log-rs.html[Link]
@@ -30,6 +48,12 @@ h| Version
 
 | https://1000kit.github.io/tkit-quarkus/current/tkit-quarkus/tkit-quarkus-jpa.html[Link]
 | https://github.com/1000kit/tkit-quarkus/blob/4.6.0/docs/modules/tkit-quarkus/pages/includes/tkit-quarkus-jpa.adoc[Link]
+| 4.6.0
+
+| tkit-quarkus-jpa-tenant
+
+| https://1000kit.github.io/tkit-quarkus/current/tkit-quarkus/tkit-quarkus-jpa-tenant.html[Link]
+| https://github.com/1000kit/tkit-quarkus/blob/4.6.0/docs/modules/tkit-quarkus/pages/includes/tkit-quarkus-jpa-tenant.adoc[Link]
 | 4.6.0
 
 | tkit-quarkus-rest
@@ -80,12 +104,6 @@ h| Version
 | https://github.com/quarkusio/quarkusio.github.io/blob/develop/_generated-doc/latest/config/quarkus-hibernate-validator.adoc[Link]
 | 3.27.1
 
-| quarkus-smallrye-jwt
-
-| https://quarkus.io/guides/security-jwt-build[Link]
-| https://github.com/quarkusio/quarkusio.github.io/blob/develop/_generated-doc/latest/config/quarkus-smallrye-jwt.adoc[Link]
-| 3.27.1
-
 | quarkus-smallrye-health
 
 | https://quarkus.io/guides/smallrye-health[Link]
@@ -103,12 +121,6 @@ h| Version
 | https://1000kit.github.io/tkit-quarkus/current/tkit-quarkus/tkit-quarkus-security.html[Link]
 | https://github.com/1000kit/tkit-quarkus/blob/4.6.0/docs/modules/tkit-quarkus/pages/includes/tkit-quarkus-security.adoc[Link]
 | 4.6.0
-
-| onecx-core
-
-| https://onecx.github.io/docs/onecx-quarkus/current/onecx-quarkus/onecx-core.html[Link]
-| 
-| 2.4.0
 
 | quarkus-micrometer-registry-prometheus
 

@@ -5,6 +5,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.TenantId;
 import org.tkit.onecx.document.domain.models.embeddable.TimePeriod;
 import org.tkit.quarkus.jpa.models.TraceableEntity;
 
@@ -17,8 +18,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "DM_RELATED_PARTY")
+@Table(name = "RELATED_PARTY")
 public class RelatedPartyRef extends TraceableEntity {
+
+    @TenantId
+    @Column(name = "TENANT_ID")
+    private String tenantId;
+
     /**
      * Name of the related party.
      */

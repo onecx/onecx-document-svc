@@ -39,6 +39,7 @@ public interface DocumentMapper {
 
     Stream<DocumentDetailDTO> mapDetailBulk(Stream<Document> document);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "type", ignore = true)
     @Mapping(target = "specification", ignore = true)
@@ -53,6 +54,7 @@ public interface DocumentMapper {
 
     PageResultDTO<DocumentDetailDTO> mapToPageResultDTO(PageResult<Document> page);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "type", ignore = true)
     @Mapping(target = "specification", ignore = true)
@@ -80,6 +82,7 @@ public interface DocumentMapper {
     @Mapping(target = "categories", ignore = true)
     List<Document> updateBulk(List<DocumentCreateUpdateDTO> dto, @MappingTarget List<Document> document);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
@@ -91,6 +94,7 @@ public interface DocumentMapper {
     DocumentRelationship updateDocumentRelationship(DocumentRelationshipCreateUpdateDTO dto,
             @MappingTarget DocumentRelationship entity);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -101,6 +105,7 @@ public interface DocumentMapper {
     @Mapping(target = "id", ignore = true)
     DocumentRelationship mapDocumentRelationship(DocumentRelationshipCreateUpdateDTO dto);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -112,6 +117,7 @@ public interface DocumentMapper {
     DocumentCharacteristic updateDocumentCharacteristic(DocumentCharacteristicCreateUpdateDTO dto,
             @MappingTarget DocumentCharacteristic entity);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -122,6 +128,7 @@ public interface DocumentMapper {
     @Mapping(target = "id", ignore = true)
     DocumentCharacteristic mapDocumentCharacteristic(DocumentCharacteristicCreateUpdateDTO dto);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -132,6 +139,7 @@ public interface DocumentMapper {
     @Mapping(target = "id", ignore = true)
     RelatedPartyRef updateRelatedPartyRef(RelatedPartyRefCreateUpdateDTO dto, @MappingTarget RelatedPartyRef entity);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -142,6 +150,7 @@ public interface DocumentMapper {
     @Mapping(target = "id", ignore = true)
     RelatedPartyRef mapRelatedPartyRef(RelatedPartyRefCreateUpdateDTO dto);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -152,6 +161,7 @@ public interface DocumentMapper {
     @Mapping(target = "id", ignore = true)
     Category updateCategory(CategoryCreateUpdateDTO dto, @MappingTarget Category entity);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -162,6 +172,7 @@ public interface DocumentMapper {
     @Mapping(target = "id", ignore = true)
     Category mapCategory(CategoryCreateUpdateDTO dto);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -176,6 +187,7 @@ public interface DocumentMapper {
     @Mapping(target = "storageUploadStatus", ignore = true)
     Attachment updateAttachment(AttachmentCreateUpdateDTO dto, @MappingTarget Attachment entity);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -194,6 +206,7 @@ public interface DocumentMapper {
     @Mapping(target = "sizeUnit", ignore = true)
     Attachment updateAttachment(AttachmentMetadataUploadDTO dto, @MappingTarget Attachment attachment);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -210,6 +223,7 @@ public interface DocumentMapper {
 
     AttachmentDTO mapAttachment(Attachment attachment);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -221,6 +235,7 @@ public interface DocumentMapper {
     Channel updateChannel(ChannelCreateUpdateDTO dto,
             @MappingTarget Channel entity);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -233,6 +248,7 @@ public interface DocumentMapper {
 
     List<ChannelDTO> mapChannels(List<Channel> channel);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -244,6 +260,7 @@ public interface DocumentMapper {
     void updateRelatedObjectRef(RelatedObjectRefCreateUpdateDTO dto,
             @MappingTarget RelatedObjectRef entity);
 
+    @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
@@ -280,6 +297,7 @@ public interface DocumentMapper {
     @Mapping(target = "attachmentDescription", source = "attachment.description")
     @Mapping(target = "mimeTypeId", source = "attachment.mimeType.id")
     @Mapping(target = "mimeTypeName", source = "attachment.mimeType.name")
+    @Mapping(target = "tenantId", ignore = true)
     StorageUploadAudit mapToStorageUploadAudit(String documentId, Document document, Attachment attachment);
 
     default void updateTraceableCollectionsInDocument(Document document,
