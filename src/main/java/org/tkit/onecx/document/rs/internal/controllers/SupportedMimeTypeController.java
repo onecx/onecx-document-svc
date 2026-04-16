@@ -4,15 +4,20 @@ import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
 
-import org.tkit.onecx.document.domain.daos.AttachmentDAO;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.tkit.onecx.document.domain.daos.SupportedMimeTypeDAO;
-import org.tkit.onecx.document.rs.internal.exception.RestException;
+import org.tkit.onecx.document.rs.internal.mappers.ExceptionMapper;
 import org.tkit.onecx.document.rs.internal.mappers.SupportedMimeTypeMapper;
+import org.tkit.quarkus.jpa.exceptions.ConstraintException;
 
 import gen.org.tkit.onecx.document.rs.internal.SupportedMimeTypeControllerApi;
+import gen.org.tkit.onecx.document.rs.internal.model.ProblemDetailResponseDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.SupportedMimeTypeCreateUpdateDTO;
 
 @ApplicationScoped
@@ -25,7 +30,7 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerA
     SupportedMimeTypeMapper supportedMimeTypeMapper;
 
     @Inject
-    AttachmentDAO attachmentDAO;
+    ExceptionMapper exceptionMapper;
 
     @Override
     @Transactional
@@ -40,8 +45,7 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerA
     public Response getSupportedMimeTypeById(String id) {
         var supportedMimeType = supportedMimeTypeDAO.findById(id);
         if (Objects.isNull(supportedMimeType)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                    getMimeTypeNotFoundMsg(id));
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.status(Response.Status.OK)
                 .entity(supportedMimeTypeMapper.mapToDTO(supportedMimeType))
@@ -61,16 +65,10 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerA
     public Response deleteSupportedMimeTypeId(String id) {
         var supportedMimeType = supportedMimeTypeDAO.findById(id);
         if (Objects.nonNull(supportedMimeType)) {
-            if (!attachmentDAO.findAttachmentsWithSupportedMimeTypeId(id).isEmpty()) {
-                throw new RestException(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST,
-                        "You cannot delete supported mime-type with id " + id
-                                + ". It is assigned to the attachment.");
-            }
             supportedMimeTypeDAO.delete(supportedMimeType);
             return Response.status(Response.Status.NO_CONTENT).build();
         }
-        throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                getMimeTypeNotFoundMsg(id));
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Override
@@ -78,8 +76,7 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerA
     public Response updateSupportedMimeTypeById(String id, SupportedMimeTypeCreateUpdateDTO supportedMimeTypeCreateUpdateDTO) {
         var supportedMimeType = supportedMimeTypeDAO.findById(id);
         if (Objects.isNull(supportedMimeType)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                    getMimeTypeNotFoundMsg(id));
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         supportedMimeTypeMapper.update(supportedMimeTypeCreateUpdateDTO, supportedMimeType);
         return Response.status(Response.Status.OK)
@@ -88,8 +85,19 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerA
                 .build();
     }
 
-    private String getMimeTypeNotFoundMsg(String id) {
-        return "The supported mime-type with id " + id + " was not found.";
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> exception(ConstraintException ex) {
+        return exceptionMapper.exception(ex);
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
+        return exceptionMapper.constraint(ex);
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> optimisticLockException(OptimisticLockException ex) {
+        return exceptionMapper.optimisticLock(ex);
     }
 
 }

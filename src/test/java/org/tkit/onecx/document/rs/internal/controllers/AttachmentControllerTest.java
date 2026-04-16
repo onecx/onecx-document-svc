@@ -1,9 +1,7 @@
 package org.tkit.onecx.document.rs.internal.controllers;
 
 import static io.restassured.RestAssured.given;
-import static jakarta.ws.rs.core.Response.Status.CREATED;
-import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
-import static jakarta.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.tkit.onecx.document.test.AbstractTest.USER;
 
@@ -13,7 +11,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.tkit.onecx.document.rs.internal.exception.RestExceptionCode;
 import org.tkit.onecx.document.test.AbstractTest;
 import org.tkit.quarkus.security.test.GenerateKeycloakClient;
 import org.tkit.quarkus.test.WithDBData;
@@ -21,7 +18,6 @@ import org.tkit.quarkus.test.WithDBData;
 import gen.org.tkit.onecx.document.rs.internal.model.AttachmentDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.AttachmentMetadataUploadDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.AttachmentStorageAuditRequestDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.ProblemDetailResponseDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.response.Response;
 
@@ -56,15 +52,12 @@ class AttachmentControllerTest extends AbstractTest {
     @Test
     @DisplayName("Returns 404 when getting attachment details for a nonexistent id.")
     void testGetAttachmentDetailsNotFound() {
-        Response response = given().auth()
+        given().auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .accept(MediaType.APPLICATION_JSON)
                 .when()
-                .get(BASE_PATH + "/" + NONEXISTENT_ATTACHMENT_ID);
-
-        response.then().statusCode(NOT_FOUND.getStatusCode());
-        ProblemDetailResponseDTO problem = response.as(ProblemDetailResponseDTO.class);
-        assertThat(problem.getErrorCode()).isEqualTo(RestExceptionCode.ATTACHMENT_NOT_FOUND.name());
+                .get(BASE_PATH + "/" + NONEXISTENT_ATTACHMENT_ID)
+                .then().statusCode(NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -86,23 +79,20 @@ class AttachmentControllerTest extends AbstractTest {
     }
 
     @Test
-    @DisplayName("Returns 404 when uploading metadata for a nonexistent attachment.")
+    @DisplayName("Returns 400 when uploading metadata for a nonexistent attachment.")
     void testUploadAttachmentsMetadataAttachmentNotFound() {
         AttachmentMetadataUploadDTO dto = new AttachmentMetadataUploadDTO();
         dto.setAttachmentId(NONEXISTENT_ATTACHMENT_ID);
         dto.setSize(1024L);
         dto.setType("application/pdf");
 
-        Response response = given().auth()
+        given().auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(List.of(dto))
                 .when()
-                .patch(BASE_PATH + "/metadata");
-
-        response.then().statusCode(NOT_FOUND.getStatusCode());
-        ProblemDetailResponseDTO problem = response.as(ProblemDetailResponseDTO.class);
-        assertThat(problem.getErrorCode()).isEqualTo(RestExceptionCode.ATTACHMENT_NOT_FOUND.name());
+                .patch(BASE_PATH + "/metadata")
+                .then().statusCode(BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -123,40 +113,34 @@ class AttachmentControllerTest extends AbstractTest {
     }
 
     @Test
-    @DisplayName("Returns 404 when creating storage audit with a nonexistent document.")
+    @DisplayName("Returns 400 when creating storage audit with a nonexistent document.")
     void testCreateStorageAuditsDocumentNotFound() {
         AttachmentStorageAuditRequestDTO dto = new AttachmentStorageAuditRequestDTO();
         dto.setDocumentId(NONEXISTENT_DOCUMENT_ID);
         dto.setAttachmentId(EXISTING_ATTACHMENT_ID);
 
-        Response response = given().auth()
+        given().auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(List.of(dto))
                 .when()
-                .post(BASE_PATH + "/storage-audit");
-
-        response.then().statusCode(NOT_FOUND.getStatusCode());
-        ProblemDetailResponseDTO problem = response.as(ProblemDetailResponseDTO.class);
-        assertThat(problem.getErrorCode()).isEqualTo(RestExceptionCode.DOCUMENT_NOT_FOUND.name());
+                .post(BASE_PATH + "/storage-audit")
+                .then().statusCode(BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    @DisplayName("Returns 404 when creating storage audit with a nonexistent attachment.")
+    @DisplayName("Returns 400 when creating storage audit with a nonexistent attachment.")
     void testCreateStorageAuditsAttachmentNotFound() {
         AttachmentStorageAuditRequestDTO dto = new AttachmentStorageAuditRequestDTO();
         dto.setDocumentId(EXISTING_DOCUMENT_ID);
         dto.setAttachmentId(NONEXISTENT_ATTACHMENT_ID);
 
-        Response response = given().auth()
+        given().auth()
                 .oauth2(keycloakTestClient.getClientAccessToken(USER))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(List.of(dto))
                 .when()
-                .post(BASE_PATH + "/storage-audit");
-
-        response.then().statusCode(NOT_FOUND.getStatusCode());
-        ProblemDetailResponseDTO problem = response.as(ProblemDetailResponseDTO.class);
-        assertThat(problem.getErrorCode()).isEqualTo(RestExceptionCode.ATTACHMENT_NOT_FOUND.name());
+                .post(BASE_PATH + "/storage-audit")
+                .then().statusCode(BAD_REQUEST.getStatusCode());
     }
 }

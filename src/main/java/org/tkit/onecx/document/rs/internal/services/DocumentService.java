@@ -16,7 +16,7 @@ import org.tkit.onecx.document.domain.models.entities.Attachment;
 import org.tkit.onecx.document.domain.models.entities.Document;
 import org.tkit.onecx.document.domain.models.entities.DocumentSpecification;
 import org.tkit.onecx.document.domain.models.entities.SupportedMimeType;
-import org.tkit.onecx.document.rs.internal.exception.RestException;
+import org.tkit.onecx.document.rs.internal.exceptions.DocumentException;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentMapper;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentSpecificationMapper;
 
@@ -43,7 +43,11 @@ public class DocumentService {
 
     public Document createDocument(DocumentCreateUpdateDTO dto) {
         var document = documentMapper.map(dto);
-        setType(dto, document);
+        var documentType = typeDAO.findById(dto.getTypeId());
+        if (documentType == null) {
+            throw new DocumentException(Response.Status.NOT_FOUND, getDocumentNotFoundMsg(dto.getTypeId()));
+        }
+        document.setType(documentType);
         setSpecification(dto, document);
         setAttachments(dto, document);
         return documentDAO.create(document);
@@ -52,22 +56,17 @@ public class DocumentService {
     @Transactional
     public Document updateDocument(Document document, DocumentCreateUpdateDTO dto) {
         documentMapper.update(dto, document);
-        setType(dto, document);
+        var documentType = typeDAO.findById(dto.getTypeId());
+        if (documentType == null) {
+            throw new DocumentException(Response.Status.NOT_FOUND, getDocumentNotFoundMsg(dto.getTypeId()));
+        }
+        document.setType(documentType);
         setSpecification(dto, document);
         updateChannelInDocument(document, dto);
         updateRelatedObjectRefInDocument(document, dto);
         documentMapper.updateTraceableCollectionsInDocument(document, dto);
         updateAttachmentsInDocument(document, dto);
         return document;
-    }
-
-    private void setType(DocumentCreateUpdateDTO dto, Document document) {
-        var documentType = typeDAO.findById(dto.getTypeId());
-        if (Objects.isNull(documentType)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                    getDocumentNotFoundMsg(dto.getTypeId()));
-        }
-        document.setType(documentType);
     }
 
     /**
@@ -89,23 +88,6 @@ public class DocumentService {
     }
 
     /**
-     * Finds the {@link SupportedMimeType} by the given id.
-     *
-     * @param dto a {@link AttachmentCreateUpdateDTO}
-     * @return a {@link SupportedMimeType}
-     *         or it throws an error if it can't find a {@link SupportedMimeType}
-     *         given id.
-     */
-    private SupportedMimeType getSupportedMimeType(AttachmentCreateUpdateDTO dto) {
-        SupportedMimeType mimeType = mimeTypeDAO.findById(dto.getMimeTypeId());
-        if (Objects.isNull(mimeType)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                    getSupportedMimeTypeNotFoundMsg(dto.getMimeTypeId()));
-        }
-        return mimeType;
-    }
-
-    /**
      * Finds attachment's mimeType {@link SupportedMimeType} by id
      * and sets it in the attachment entity {@link Attachment}, then add
      * {@link Attachment}
@@ -120,7 +102,11 @@ public class DocumentService {
         } else {
             for (AttachmentCreateUpdateDTO attachmentDTO : dto.getAttachments()) {
                 if (Objects.isNull(attachmentDTO.getId()) || attachmentDTO.getId().isEmpty()) {
-                    var mimeType = getSupportedMimeType(attachmentDTO);
+                    var mimeType = mimeTypeDAO.findById(attachmentDTO.getMimeTypeId());
+                    if (mimeType == null) {
+                        throw new DocumentException(Response.Status.NOT_FOUND,
+                                getSupportedMimeTypeNotFoundMsg(dto.getTypeId()));
+                    }
                     var attachment = documentMapper.mapAttachment(attachmentDTO);
                     attachment.setMimeType(mimeType);
                     attachment.setStorageUploadStatus(false);
@@ -167,7 +153,8 @@ public class DocumentService {
                         .filter(dto -> entity.getId().equals(dto.getId()))
                         .findFirst();
                 if (dtoOptional.isPresent()) {
-                    var mimeType = getSupportedMimeType(dtoOptional.get());
+                    var mimeType = mimeTypeDAO.findById(dtoOptional.get().getMimeTypeId());
+                    //                    var mimeType = getSupportedMimeType(dtoOptional.get());
                     documentMapper.updateAttachment(dtoOptional.get(), entity);
                     entity.setMimeType(mimeType);
                 }

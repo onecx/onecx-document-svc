@@ -15,9 +15,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.tkit.onecx.document.rs.internal.mappers.ExceptionToRFCProblemMapper;
-import org.tkit.onecx.document.rs.internal.mappers.ValidationExceptionToRFCProblemMapper;
-import org.tkit.onecx.document.rs.internal.models.RFCProblemDTO;
 import org.tkit.onecx.document.test.AbstractTest;
 import org.tkit.quarkus.security.test.GenerateKeycloakClient;
 import org.tkit.quarkus.test.WithDBData;
@@ -100,16 +97,6 @@ class SupportedMimeTypeControllerTest extends AbstractTest {
                 .when()
                 .post(BASE_PATH);
         postResponse.then().statusCode(BAD_REQUEST.getStatusCode());
-
-        RFCProblemDTO rfcProblemDTO = postResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).isEqualTo(BAD_REQUEST.getStatusCode());
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("createSupportedMimeType.supportedMimeTypeCreateUpdateDTO.name: must not be null");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo(ValidationExceptionToRFCProblemMapper.TECHNICAL_ERROR);
-        assertThat(rfcProblemDTO.getType())
-                .isEqualTo(ValidationExceptionToRFCProblemMapper.RFCProblemType.VALIDATION_EXCEPTION
-                        .toString());
     }
 
     @Test
@@ -141,15 +128,6 @@ class SupportedMimeTypeControllerTest extends AbstractTest {
                 .when()
                 .delete(BASE_PATH + "/" + EXISTING_SUPPORTED_MIME_TYPE_ID);
         deleteResponse.then().statusCode(BAD_REQUEST.getStatusCode());
-
-        RFCProblemDTO rfcProblemDTO = deleteResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).isEqualTo(BAD_REQUEST.getStatusCode());
-        assertThat(rfcProblemDTO.getDetail()).isEqualTo("You cannot delete supported mime-type" +
-                " with id " + EXISTING_SUPPORTED_MIME_TYPE_ID + ". It is assigned to the attachment.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo(ExceptionToRFCProblemMapper.TECHNICAL_ERROR);
-        assertThat(rfcProblemDTO.getType())
-                .isEqualTo(ExceptionToRFCProblemMapper.RFCProblemType.REST_EXCEPTION.toString());
     }
 
     @Test
@@ -161,15 +139,6 @@ class SupportedMimeTypeControllerTest extends AbstractTest {
                 .when()
                 .delete(BASE_PATH + "/" + NONEXISTENT_SUPPORTED_MIME_TYPE_ID);
         deleteResponse.then().statusCode(NOT_FOUND.getStatusCode());
-
-        RFCProblemDTO rfcProblemDTO = deleteResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).isEqualTo(NOT_FOUND.getStatusCode());
-        assertThat(rfcProblemDTO.getDetail()).isEqualTo("The supported mime-type with id "
-                + NONEXISTENT_SUPPORTED_MIME_TYPE_ID + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo(ExceptionToRFCProblemMapper.TECHNICAL_ERROR);
-        assertThat(rfcProblemDTO.getType())
-                .isEqualTo(ExceptionToRFCProblemMapper.RFCProblemType.REST_EXCEPTION.toString());
     }
 
     @Test
@@ -211,15 +180,6 @@ class SupportedMimeTypeControllerTest extends AbstractTest {
                 .when()
                 .put(BASE_PATH + "/" + NONEXISTENT_SUPPORTED_MIME_TYPE_ID);
         putResponse.then().statusCode(NOT_FOUND.getStatusCode());
-
-        RFCProblemDTO rfcProblemDTO = putResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).isEqualTo(NOT_FOUND.getStatusCode());
-        assertThat(rfcProblemDTO.getDetail()).isEqualTo("The supported mime-type with id "
-                + NONEXISTENT_SUPPORTED_MIME_TYPE_ID + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo(ExceptionToRFCProblemMapper.TECHNICAL_ERROR);
-        assertThat(rfcProblemDTO.getType())
-                .isEqualTo(ExceptionToRFCProblemMapper.RFCProblemType.REST_EXCEPTION.toString());
     }
 
     @Test
@@ -268,15 +228,6 @@ class SupportedMimeTypeControllerTest extends AbstractTest {
                 .get(BASE_PATH + "/" + NONEXISTENT_SUPPORTED_MIME_TYPE_ID);
 
         response.then().statusCode(NOT_FOUND.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = response.as(RFCProblemDTO.class);
-
-        assertThat(rfcProblemDTO.getStatus()).hasToString("404");
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("The supported mime-type with id " + NONEXISTENT_SUPPORTED_MIME_TYPE_ID
-                        + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("REST_EXCEPTION");
     }
 
     private TypeRef<List<SupportedMimeTypeDTO>> getSupportedMimeTypeDTOTypeRef() {

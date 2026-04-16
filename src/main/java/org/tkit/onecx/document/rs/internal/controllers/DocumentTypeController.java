@@ -4,16 +4,21 @@ import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
 
-import org.tkit.onecx.document.domain.daos.DocumentDAO;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.tkit.onecx.document.domain.daos.DocumentTypeDAO;
-import org.tkit.onecx.document.rs.internal.exception.RestException;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentTypeMapper;
+import org.tkit.onecx.document.rs.internal.mappers.ExceptionMapper;
+import org.tkit.quarkus.jpa.exceptions.ConstraintException;
 
 import gen.org.tkit.onecx.document.rs.internal.DocumentTypeControllerApi;
 import gen.org.tkit.onecx.document.rs.internal.model.DocumentTypeCreateUpdateDTO;
+import gen.org.tkit.onecx.document.rs.internal.model.ProblemDetailResponseDTO;
 
 @ApplicationScoped
 public class DocumentTypeController implements DocumentTypeControllerApi {
@@ -25,7 +30,7 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
     DocumentTypeMapper documentTypeMapper;
 
     @Inject
-    DocumentDAO documentDAO;
+    ExceptionMapper exceptionMapper;
 
     @Override
     @Transactional
@@ -40,8 +45,7 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
     public Response getDocumentTypeById(String id) {
         var documentType = documentTypeDAO.findById(id);
         if (Objects.isNull(documentType)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                    getTypeNotFoundMsg(id));
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.status(Response.Status.OK)
                 .entity(documentTypeMapper.mapDocumentType(documentType))
@@ -61,15 +65,10 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
     public Response deleteDocumentTypeById(String id) {
         var documentType = documentTypeDAO.findById(id);
         if (Objects.nonNull(documentType)) {
-            if (!documentDAO.findDocumentsWithDocumentTypeId(id).isEmpty()) {
-                throw new RestException(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST,
-                        "You cannot delete type of document with id " + id
-                                + ". It is assigned to the document.");
-            }
             documentTypeDAO.delete(documentType);
             return Response.status(Response.Status.NO_CONTENT).build();
         }
-        throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND, getTypeNotFoundMsg(id));
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Override
@@ -77,8 +76,7 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
     public Response updateDocumentTypeById(String id, DocumentTypeCreateUpdateDTO documentTypeCreateUpdateDTO) {
         var documentType = documentTypeDAO.findById(id);
         if (Objects.isNull(documentType)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                    getTypeNotFoundMsg(id));
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         documentTypeMapper.update(documentTypeCreateUpdateDTO, documentType);
         return Response.status(Response.Status.CREATED)
@@ -86,7 +84,18 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
                 .build();
     }
 
-    private String getTypeNotFoundMsg(String id) {
-        return "The document type with id " + id + " was not found.";
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> exception(ConstraintException ex) {
+        return exceptionMapper.exception(ex);
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
+        return exceptionMapper.constraint(ex);
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> optimisticLockException(OptimisticLockException ex) {
+        return exceptionMapper.optimisticLock(ex);
     }
 }

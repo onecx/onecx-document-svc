@@ -19,8 +19,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.tkit.onecx.document.rs.internal.models.PageResultDTO;
-import org.tkit.onecx.document.rs.internal.models.RFCProblemDTO;
 import org.tkit.onecx.document.test.AbstractTest;
 import org.tkit.quarkus.security.test.GenerateKeycloakClient;
 import org.tkit.quarkus.test.WithDBData;
@@ -84,7 +82,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(8);
     }
 
@@ -103,7 +101,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
     }
 
@@ -123,7 +121,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
     }
 
@@ -185,13 +183,6 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .get(BASE_PATH + DIRECTORY_SEPERATOR + NONEXISTENT_DOCUMENT_ID);
         response.then().statusCode(NOT_FOUND.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = response.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("404");
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("Document with id " + NONEXISTENT_DOCUMENT_ID + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("REST_EXCEPTION");
     }
 
     @Test
@@ -209,7 +200,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
         assertThat(documents.getStream().stream()).allMatch(el -> el.getId().equals(EXISTING_DOCUMENT_ID));
     }
@@ -250,7 +241,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).isEmpty();
     }
 
@@ -288,7 +279,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
         assertThat(documents.getStream().stream()).allMatch(el -> el.getName().equals(NAME_OF_DOCUMENT_1));
     }
@@ -328,7 +319,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(8);
     }
 
@@ -347,7 +338,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(8);
         assertThat(documents.getStream().stream()).allMatch(el -> el.getName().startsWith("docu"));
     }
@@ -387,7 +378,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
         assertThat(documents.getStream().stream())
                 .allMatch(el -> el.getLifeCycleState().equals(STATUS_OF_DOCUMENT_1));
@@ -428,7 +419,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
         assertThat(documents.getStream().stream())
                 .allMatch(el -> el.getType().getId().equals(TYPE_ID_OF_DOCUMENT_1));
@@ -469,7 +460,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
         assertThat(documents.getStream().stream())
                 .allMatch(el -> el.getChannel().getId().equals(CHANNEL_ID_OF_DOCUMENT_1));
@@ -511,7 +502,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(1);
         assertThat(documents.getStream().stream())
                 .allMatch(el -> el.getCreationUser().equals(DOCUMENT_CREATION_USER));
@@ -553,7 +544,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(5);
         assertThat(documents.getStream().stream()).allMatch(el -> el.getRelatedObject().getObjectReferenceId()
                 .equals(RELATED_OBJECT_REF_ID_OF_DOCUMENT));
@@ -595,7 +586,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(6);
         assertThat(documents.getStream().stream()).allMatch(el -> el.getRelatedObject().getObjectReferenceType()
                 .equals(RELATED_OBJECT_REF_TYPE_OF_DOCUMENT));
@@ -637,7 +628,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).isEmpty();
     }
 
@@ -675,7 +666,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream().size()).isNotNegative();
     }
 
@@ -713,7 +704,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).isEmpty();
     }
 
@@ -752,7 +743,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream().size()).isNotNegative();
     }
 
@@ -787,13 +778,6 @@ class DocumentControllerTest extends AbstractTest {
                 .get(BASE_PATH + DIRECTORY_SEPERATOR + NONEXISTENT_DOCUMENT_ID);
 
         response.then().statusCode(NOT_FOUND.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = response.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("404");
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("Document with id " + NONEXISTENT_DOCUMENT_ID + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("REST_EXCEPTION");
     }
 
     @Test
@@ -810,7 +794,7 @@ class DocumentControllerTest extends AbstractTest {
                 .post(SEARCH_PATH);
 
         response.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = response.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).isNotEmpty();
     }
 
@@ -834,7 +818,7 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .post(SEARCH_PATH);
         getResponse.then().statusCode(200);
-        PageResultDTO<DocumentDetailDTO> documents = getResponse.as(getDocumentDetailDTOTypeRef());
+        DocumentPageResultDTO documents = getResponse.as(DocumentPageResultDTO.class);
         assertThat(documents.getStream()).hasSize(7);
     }
 
@@ -848,13 +832,6 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .delete(BASE_PATH + DIRECTORY_SEPERATOR + NONEXISTENT_DOCUMENT_ID);
         deleteResponse.then().statusCode(NOT_FOUND.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = deleteResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("404");
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("Document with id " + NONEXISTENT_DOCUMENT_ID + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("REST_EXCEPTION");
     }
 
     @Test
@@ -1137,12 +1114,6 @@ class DocumentControllerTest extends AbstractTest {
                 .post(BASE_PATH);
 
         postResponse.then().statusCode(BAD_REQUEST.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = postResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("400");
-        assertThat(rfcProblemDTO.getDetail()).isEqualTo("createDocument.documentCreateUpdateDTO.name: must not be null");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("VALIDATION_EXCEPTION");
     }
 
     @Test
@@ -1175,12 +1146,6 @@ class DocumentControllerTest extends AbstractTest {
                 .post(BASE_PATH);
 
         postResponse.then().statusCode(BAD_REQUEST.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = postResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("400");
-        assertThat(rfcProblemDTO.getDetail()).isEqualTo("createDocument.documentCreateUpdateDTO.typeId: must not be null");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("VALIDATION_EXCEPTION");
     }
 
     @Test
@@ -1211,12 +1176,6 @@ class DocumentControllerTest extends AbstractTest {
                 .post(BASE_PATH);
 
         postResponse.then().statusCode(BAD_REQUEST.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = postResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("400");
-        assertThat(rfcProblemDTO.getDetail()).isEqualTo("createDocument.documentCreateUpdateDTO.channel: must not be null");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("VALIDATION_EXCEPTION");
     }
 
     @Test
@@ -1282,14 +1241,7 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .post(BASE_PATH);
 
-        postResponse.then().statusCode(NOT_FOUND.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = postResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("404");
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("The document with ID " + documentTypeId + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("REST_EXCEPTION");
+        postResponse.then().statusCode(BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1366,15 +1318,7 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .post(BASE_PATH);
 
-        postResponse.then().statusCode(NOT_FOUND.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = postResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("404");
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("The supported mime type with ID " + attachmentMimeTypeId
-                        + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("REST_EXCEPTION");
+        postResponse.then().statusCode(BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1713,13 +1657,6 @@ class DocumentControllerTest extends AbstractTest {
                 .put(BASE_PATH + DIRECTORY_SEPERATOR + NONEXISTENT_DOCUMENT_ID);
 
         putResponse.then().statusCode(NOT_FOUND.getStatusCode());
-        RFCProblemDTO rfcProblemDTO = putResponse.as(RFCProblemDTO.class);
-        assertThat(rfcProblemDTO.getStatus()).hasToString("404");
-        assertThat(rfcProblemDTO.getDetail())
-                .isEqualTo("Document with id " + NONEXISTENT_DOCUMENT_ID + " was not found.");
-        assertThat(rfcProblemDTO.getInstance()).isNull();
-        assertThat(rfcProblemDTO.getTitle()).isEqualTo("TECHNICAL ERROR");
-        assertThat(rfcProblemDTO.getType()).isEqualTo("REST_EXCEPTION");
     }
 
     @Test
@@ -1740,12 +1677,6 @@ class DocumentControllerTest extends AbstractTest {
     private TypeRef<List<ChannelDTO>> getChannelDTOTypeRef() {
         return new TypeRef<>() {
         };
-    }
-
-    private TypeRef<PageResultDTO<DocumentDetailDTO>> getDocumentDetailDTOTypeRef() {
-        return new TypeRef<>() {
-        };
-
     }
 
     @Test

@@ -19,7 +19,6 @@ import org.tkit.onecx.document.domain.models.entities.DocumentRelationship;
 import org.tkit.onecx.document.domain.models.entities.RelatedObjectRef;
 import org.tkit.onecx.document.domain.models.entities.RelatedPartyRef;
 import org.tkit.onecx.document.domain.models.entities.StorageUploadAudit;
-import org.tkit.onecx.document.rs.internal.models.PageResultDTO;
 import org.tkit.quarkus.jpa.daos.PageResult;
 import org.tkit.quarkus.rs.mappers.OffsetDateTimeMapper;
 
@@ -52,7 +51,8 @@ public interface DocumentMapper {
     @Mapping(target = "endDate", ignore = true)
     DocumentSearchCriteria map(DocumentSearchCriteriaDTO searchCriteriaDTO);
 
-    PageResultDTO<DocumentDetailDTO> mapToPageResultDTO(PageResult<Document> page);
+    @Mapping(target = "removeStreamItem", ignore = true)
+    DocumentPageResultDTO mapToPageResultDTO(PageResult<Document> documents);
 
     @Mapping(target = "tenantId", ignore = true)
     @Mapping(target = "id", ignore = true)

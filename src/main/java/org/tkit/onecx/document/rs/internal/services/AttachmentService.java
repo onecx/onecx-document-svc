@@ -12,8 +12,7 @@ import org.tkit.onecx.document.domain.daos.AttachmentDAO;
 import org.tkit.onecx.document.domain.daos.DocumentDAO;
 import org.tkit.onecx.document.domain.daos.StorageUploadAuditDAO;
 import org.tkit.onecx.document.domain.models.entities.Attachment;
-import org.tkit.onecx.document.rs.internal.exception.RestException;
-import org.tkit.onecx.document.rs.internal.exception.RestExceptionCode;
+import org.tkit.onecx.document.rs.internal.exceptions.DocumentException;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentMapper;
 
 import gen.org.tkit.onecx.document.rs.internal.model.AttachmentMetadataUploadDTO;
@@ -40,14 +39,7 @@ public class AttachmentService {
     }
 
     public Attachment getAttachmentDetails(final String attachmentId) {
-        final var attachment = attachmentDAO.findById(attachmentId);
-
-        if (Objects.isNull(attachment)) {
-            throw createNotFoundException(String.format(ATT_NOT_FOUND_MSG, attachmentId),
-                    RestExceptionCode.ATTACHMENT_NOT_FOUND);
-        }
-
-        return attachment;
+        return attachmentDAO.findById(attachmentId);
     }
 
     @Transactional
@@ -56,8 +48,7 @@ public class AttachmentService {
             final var attachmentToUpdate = attachmentDAO.findById(dto.getAttachmentId());
 
             if (Objects.isNull(attachmentToUpdate)) {
-                throw createNotFoundException(String.format(ATT_NOT_FOUND_MSG, dto.getAttachmentId()),
-                        RestExceptionCode.ATTACHMENT_NOT_FOUND);
+                throw createNotFoundException(String.format(ATT_NOT_FOUND_MSG, dto.getAttachmentId()));
             }
 
             final var updatedAttachment = documentMapper.updateAttachment(dto, attachmentToUpdate);
@@ -74,11 +65,11 @@ public class AttachmentService {
 
             if (Objects.isNull(document)) {
                 var msg = String.format(DOC_NOT_FOUND_MSG, request.getDocumentId());
-                throw createNotFoundException(msg, RestExceptionCode.DOCUMENT_NOT_FOUND);
+                throw createNotFoundException(msg);
             }
             if (Objects.isNull(attachment)) {
                 var msg = String.format(ATT_NOT_FOUND_MSG, request.getAttachmentId());
-                throw createNotFoundException(msg, RestExceptionCode.ATTACHMENT_NOT_FOUND);
+                throw createNotFoundException(msg);
             }
 
             final var audit = documentMapper.mapToStorageUploadAudit(request.getDocumentId(), document, attachment);
@@ -86,7 +77,7 @@ public class AttachmentService {
         }
     }
 
-    private RestException createNotFoundException(final String message, final RestExceptionCode code) {
-        return new RestException(code, Response.Status.NOT_FOUND, message);
+    private DocumentException createNotFoundException(final String message) {
+        return new DocumentException(Response.Status.NOT_FOUND, message);
     }
 }

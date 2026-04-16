@@ -9,9 +9,13 @@ import java.util.function.Predicate;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
 
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.tkit.onecx.document.domain.criteria.DocumentSearchCriteria;
 import org.tkit.onecx.document.domain.daos.AttachmentDAO;
 import org.tkit.onecx.document.domain.daos.ChannelDAO;
@@ -21,14 +25,17 @@ import org.tkit.onecx.document.domain.models.entities.*;
 import org.tkit.onecx.document.domain.models.entities.Channel;
 import org.tkit.onecx.document.domain.models.entities.Document;
 import org.tkit.onecx.document.domain.models.entities.StorageUploadAudit;
-import org.tkit.onecx.document.rs.internal.exception.RestException;
+import org.tkit.onecx.document.rs.internal.exceptions.DocumentException;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentMapper;
+import org.tkit.onecx.document.rs.internal.mappers.ExceptionMapper;
 import org.tkit.onecx.document.rs.internal.services.DocumentService;
 import org.tkit.quarkus.jpa.daos.PageResult;
+import org.tkit.quarkus.jpa.exceptions.ConstraintException;
 
 import gen.org.tkit.onecx.document.rs.internal.DocumentControllerApi;
 import gen.org.tkit.onecx.document.rs.internal.model.DocumentCreateUpdateDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.DocumentSearchCriteriaDTO;
+import gen.org.tkit.onecx.document.rs.internal.model.ProblemDetailResponseDTO;
 import io.quarkus.logging.Log;
 
 @ApplicationScoped
@@ -52,13 +59,16 @@ public class DocumentController implements DocumentControllerApi {
     @Inject
     DocumentService documentService;
 
+    @Inject
+    ExceptionMapper exceptionMapper;
+
     public static final DateTimeFormatter CUSTOM_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     public Response getDocumentById(String id) {
         var document = documentDAO.findDocumentById(id);
         if (Objects.isNull(document)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND, getDocumentNotFoundMsg(id));
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.status(Response.Status.OK)
                 .entity(documentMapper.mapDetail(document))
@@ -88,7 +98,7 @@ public class DocumentController implements DocumentControllerApi {
     public Response deleteDocumentById(String id) {
         var document = documentDAO.findById(id);
         if (Objects.isNull(document)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND, getDocumentNotFoundMsg(id));
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         documentDAO.delete(document);
         return Response.status(Response.Status.NO_CONTENT).build();
@@ -117,7 +127,7 @@ public class DocumentController implements DocumentControllerApi {
     public Response updateDocument(String id, DocumentCreateUpdateDTO documentCreateUpdateDTO) {
         var document = documentDAO.findDocumentById(id);
         if (Objects.isNull(document)) {
-            throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND, getDocumentNotFoundMsg(id));
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         document = documentService.updateDocument(document, documentCreateUpdateDTO);
         return Response.status(Response.Status.CREATED)
@@ -150,8 +160,7 @@ public class DocumentController implements DocumentControllerApi {
             DocumentCreateUpdateDTO dto1 = it.next();
             var document = documentDAO.findDocumentById(dto1.getId());
             if (Objects.isNull(document)) {
-                throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                        getDocumentNotFoundMsg(dto1.getId()));
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
             try {
                 document = documentService.updateDocument(document, dto1);
@@ -173,8 +182,7 @@ public class DocumentController implements DocumentControllerApi {
             String currentDocId = itr.next();
             var document = documentDAO.findById(currentDocId);
             if (Objects.isNull(document)) {
-                throw new RestException(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND,
-                        getDocumentNotFoundMsg(currentDocId));
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
             documentDAO.delete(document);
         }
@@ -198,8 +206,23 @@ public class DocumentController implements DocumentControllerApi {
                 .build();
     }
 
-    private String getDocumentNotFoundMsg(String id) {
-        return "Document with id " + id + " was not found.";
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> exception(ConstraintException ex) {
+        return exceptionMapper.exception(ex);
+    }
 
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
+        return exceptionMapper.constraint(ex);
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> optimisticLockException(OptimisticLockException ex) {
+        return exceptionMapper.optimisticLock(ex);
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> documentException(DocumentException ex) {
+        return exceptionMapper.documentException(ex);
     }
 }

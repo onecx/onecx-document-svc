@@ -30,23 +30,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageResult'
+                $ref: '#/components/schemas/DocumentPageResult'
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "403":
-          description: Not Authorized
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
+                $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/document:
     post:
       security:
@@ -78,17 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "403":
-          description: Not Authorized
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
+                $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/document-specification:
     get:
       tags:
@@ -106,16 +86,6 @@ paths:
                   $ref: '#/components/schemas/DocumentSpecification'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     post:
       tags:
         - DocumentSpecificationController
@@ -135,16 +105,6 @@ paths:
                 $ref: '#/components/schemas/DocumentSpecification'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
   /internal/document-specification/{id}:
     get:
       tags:
@@ -166,16 +126,6 @@ paths:
                 $ref: '#/components/schemas/DocumentSpecification'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     put:
       tags:
         - DocumentSpecificationController
@@ -201,16 +151,6 @@ paths:
                 $ref: '#/components/schemas/DocumentSpecification'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     delete:
       tags:
         - DocumentSpecificationController
@@ -230,19 +170,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RFCProblem'
+                $ref: '#/components/schemas/ProblemDetailResponse'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
   /internal/document-type:
     get:
       tags:
@@ -260,16 +190,6 @@ paths:
                   $ref: '#/components/schemas/DocumentType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     post:
       tags:
         - DocumentTypeController
@@ -289,16 +209,6 @@ paths:
                 $ref: '#/components/schemas/DocumentType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
   /internal/document-type/{id}:
     get:
       tags:
@@ -320,16 +230,6 @@ paths:
                 $ref: '#/components/schemas/DocumentType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     put:
       tags:
         - DocumentTypeController
@@ -355,16 +255,6 @@ paths:
                 $ref: '#/components/schemas/DocumentType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     delete:
       tags:
         - DocumentTypeController
@@ -384,19 +274,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RFCProblem'
+                $ref: '#/components/schemas/ProblemDetailResponse'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
   /internal/document/bulkupdate:
     put:
       security:
@@ -421,22 +301,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/DocumentDetail'
-        "403":
-          description: Not Authorized
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
   /internal/document/channels:
     get:
       tags:
@@ -452,12 +318,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Channel'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
   /internal/document/delete-bulk-documents:
     delete:
       security:
@@ -476,22 +336,8 @@ paths:
       responses:
         "204":
           description: Delete Documents by ids
-        "403":
-          description: Not Authorized
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
   /internal/document/files/upload/failed/{id}:
     get:
       security:
@@ -517,20 +363,6 @@ paths:
                   $ref: '#/components/schemas/StorageUploadAudit'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "403":
-          description: Not Authorized
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
   /internal/document/search/show-all-documents:
     post:
       security:
@@ -558,17 +390,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "403":
-          description: Not Authorized
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
+                $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/document/{id}:
     get:
       security:
@@ -590,22 +412,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DocumentDetail'
-        "403":
-          description: Not Authorized
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
     put:
       security:
         - oauth2: [ ocx-doc:all, ocx-doc:write]
@@ -633,20 +441,6 @@ paths:
                 $ref: '#/components/schemas/DocumentDetail'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "403":
-          description: Not Authorized
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
     delete:
       security:
         - oauth2: [ ocx-doc:all, ocx-doc:write]
@@ -663,22 +457,8 @@ paths:
       responses:
         "204":
           description: Deleted Document by id
-        "403":
-          description: Not Authorized
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "401":
-          description: Not Authorized
   /internal/supported-mime-type:
     get:
       tags:
@@ -696,16 +476,6 @@ paths:
                   $ref: '#/components/schemas/SupportedMimeType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     post:
       tags:
         - SupportedMimeTypeController
@@ -725,16 +495,6 @@ paths:
                 $ref: '#/components/schemas/SupportedMimeType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
   /internal/supported-mime-type/{id}:
     get:
       tags:
@@ -756,16 +516,6 @@ paths:
                 $ref: '#/components/schemas/SupportedMimeType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     put:
       tags:
         - SupportedMimeTypeController
@@ -791,16 +541,6 @@ paths:
                 $ref: '#/components/schemas/SupportedMimeType'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
     delete:
       tags:
         - SupportedMimeTypeController
@@ -820,19 +560,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RFCProblem'
+                $ref: '#/components/schemas/ProblemDetailResponse'
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
-        "500":
-          description: "Internal Server Error, please check Problem Details"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RFCProblem'
   /internal/attachment/metadata:
     patch:
       tags:
@@ -851,10 +581,6 @@ paths:
           description: Metadata updated
         "404":
           description: Resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/attachment/storage-audit:
     post:
       tags:
@@ -873,10 +599,6 @@ paths:
           description: Storage audit logs created
         "404":
           description: Resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/attachment/{attachmentId}:
     get:
       tags:
@@ -898,11 +620,18 @@ paths:
                 $ref: '#/components/schemas/Attachment'
         '404':
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetailResponse'
 components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://oauth.simple.api/token
+          scopes:
+            ocx-doc:all: Grants access to all operations
+            ocx-doc:write: Grants access to write operations
+            ocx-doc:read: Grants read access
+
   schemas:
     AttachmentCreateUpdate:
       type: object
@@ -1237,6 +966,8 @@ components:
           type: string
     DocumentSpecificationCreateUpdate:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
@@ -1336,7 +1067,7 @@ components:
       format: date-time
       type: string
       example: 2022-03-10T12:15:50-04:00
-    PageResult:
+    DocumentPageResult:
       type: object
       properties:
         totalElements:
@@ -1354,43 +1085,7 @@ components:
         stream:
           type: array
           items:
-            type: object
-    RFCProblem:
-      required:
-        - type
-        - title
-      type: object
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        status:
-          format: int32
-          type: integer
-        detail:
-          type: string
-        instance:
-          type: string
-        problems:
-          type: array
-          items:
-            $ref: '#/components/schemas/RFCProblemDetail'
-    RFCProblemDetail:
-      required:
-        - message
-        - messageId
-        - messageType
-      type: object
-      properties:
-        message:
-          type: string
-        messageId:
-          type: string
-        code:
-          type: string
-        messageType:
-          type: string
+            $ref: '#/components/schemas/DocumentDetail'
     RelatedObjectRefCreateUpdate:
       type: object
       properties:
@@ -1668,13 +1363,3 @@ components:
           type: string
         message:
           type: string
-  securitySchemes:
-    oauth2:
-      type: oauth2
-      flows:
-        clientCredentials:
-          tokenUrl: http://keycloak-app/realms/OneCX/protocol/openid-connect/token
-          scopes:
-            ocx-doc:all: Grants access to all operations
-            ocx-doc:write: Grants access to write operations
-            ocx-doc:read: Grants read access
