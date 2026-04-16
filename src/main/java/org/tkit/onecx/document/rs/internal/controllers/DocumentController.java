@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
@@ -30,7 +29,6 @@ import org.tkit.onecx.document.rs.internal.mappers.DocumentMapper;
 import org.tkit.onecx.document.rs.internal.mappers.ExceptionMapper;
 import org.tkit.onecx.document.rs.internal.services.DocumentService;
 import org.tkit.quarkus.jpa.daos.PageResult;
-import org.tkit.quarkus.jpa.exceptions.ConstraintException;
 
 import gen.org.tkit.onecx.document.rs.internal.DocumentControllerApi;
 import gen.org.tkit.onecx.document.rs.internal.model.DocumentCreateUpdateDTO;
@@ -207,18 +205,8 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @ServerExceptionMapper
-    public RestResponse<ProblemDetailResponseDTO> exception(ConstraintException ex) {
-        return exceptionMapper.exception(ex);
-    }
-
-    @ServerExceptionMapper
     public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
         return exceptionMapper.constraint(ex);
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<ProblemDetailResponseDTO> optimisticLockException(OptimisticLockException ex) {
-        return exceptionMapper.optimisticLock(ex);
     }
 
     @ServerExceptionMapper

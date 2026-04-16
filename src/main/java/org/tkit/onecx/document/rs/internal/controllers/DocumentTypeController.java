@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
@@ -94,8 +93,4 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
         return exceptionMapper.constraint(ex);
     }
 
-    @ServerExceptionMapper
-    public RestResponse<ProblemDetailResponseDTO> optimisticLockException(OptimisticLockException ex) {
-        return exceptionMapper.optimisticLock(ex);
-    }
 }

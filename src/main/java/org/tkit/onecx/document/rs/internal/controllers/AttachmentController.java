@@ -4,8 +4,6 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.OptimisticLockException;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
 
 import org.jboss.resteasy.reactive.RestResponse;
@@ -14,7 +12,6 @@ import org.tkit.onecx.document.rs.internal.exceptions.DocumentException;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentMapper;
 import org.tkit.onecx.document.rs.internal.mappers.ExceptionMapper;
 import org.tkit.onecx.document.rs.internal.services.AttachmentService;
-import org.tkit.quarkus.jpa.exceptions.ConstraintException;
 
 import gen.org.tkit.onecx.document.rs.internal.AttachmentControllerApi;
 import gen.org.tkit.onecx.document.rs.internal.model.AttachmentMetadataUploadDTO;
@@ -55,21 +52,6 @@ public class AttachmentController implements AttachmentControllerApi {
             List<AttachmentStorageAuditRequestDTO> attachmentStorageAuditRequestDTOs) {
         attachmentService.createStorageAuditLogs(attachmentStorageAuditRequestDTOs);
         return Response.status(Response.Status.CREATED).build();
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<ProblemDetailResponseDTO> exception(ConstraintException ex) {
-        return exceptionMapper.exception(ex);
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
-        return exceptionMapper.constraint(ex);
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<ProblemDetailResponseDTO> optimisticLockException(OptimisticLockException ex) {
-        return exceptionMapper.optimisticLock(ex);
     }
 
     @ServerExceptionMapper
