@@ -1,0 +1,7 @@
+include::onecx-document-svc-attributes.adoc[opts=optional]
+
+= OneCX Document Backend Service
+
+
+
+include::onecx-document-svc-docs.adoc[opts=optional]

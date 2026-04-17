@@ -1,0 +1,75 @@
+
+include::onecx-document-svc-attributes.adoc[opts=optional]
+
+{docker-registry}[Link to Docker registry]
+
+== Default properties
+
+.{properties-file}
+[%collapsible]
+====
+[source,properties,subs=attributes+]
+----
+quarkus.http.auth.permission.health.paths=/q/*
+quarkus.http.auth.permission.health.policy=permit
+quarkus.http.auth.permission.default.paths=/*
+quarkus.http.auth.permission.default.policy=authenticated
+quarkus.banner.enabled=false
+quarkus.http.limits.max-body-size=20240K
+quarkus.liquibase.migrate-at-start=true
+quarkus.liquibase.validate-on-migrate=true
+tkit.security-dynamic-test.openapi.enabled=false
+quarkus.datasource.db-kind=postgresql
+quarkus.datasource.jdbc.max-size=8
+quarkus.datasource.jdbc.min-size=2
+quarkus.datasource.metrics.enabled=true
+quarkus.hibernate-orm.metrics.enabled=true
+quarkus.hibernate-orm.database.generation=none
+quarkus.hibernate-orm.database.generation.halt-on-error=true
+quarkus.hibernate-orm.jdbc.timezone=UTC
+quarkus.hibernate-orm.multitenant=DISCRIMINATOR
+quarkus.log.category."org.hibernate.engine.internal.StatisticalLoggingSessionEventListener".level=WARNING
+tkit.rs.context.tenant-id.enabled=true
+tkit.log.json.enabled=true
+tkit.log.json.keys.type=rs-time=double,time=double,rs-response-status=int
+tkit.log.json.keys.mdc=traceId=X-B3-TraceId,spanId=X-B3-SpanId
+tkit.log.json.keys.ignore=loggerClassName,ndc
+tkit.log.json.keys.override=timestamp=@timestamp,threadName=thread,loggerName=source
+tkit.log.json.keys.env=service_domain=SERVICE_DOMAIN
+quarkus.jacoco.excludes=**/mappers/*
+## TEST
+----
+====
+
+== Extensions
+.Extensions List
+[%collapsible]
+====
+include::onecx-document-svc-extensions.adoc[opts=optional]
+====
+
+== Helm
+
+{helm-registry}[Link to Helm registry]
+
+.Default values in {helm-file}
+[source,yaml]
+----
+app:
+  name: svc
+  image:
+    repository: "onecx/onecx-document-svc"
+  db:
+    enabled: true
+  operator:
+    keycloak:
+      client:
+        enabled: true
+        spec:
+          kcConfig:
+            defaultClientScopes: [ ocx-tn:read ]
+    microservice:
+      spec:
+        description: OneCX Document Backend Service
+        name: OneCX Document SVC
+----
