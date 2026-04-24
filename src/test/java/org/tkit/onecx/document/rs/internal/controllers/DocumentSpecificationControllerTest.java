@@ -27,7 +27,7 @@ import io.restassured.response.Response;
 
 @QuarkusTest
 @WithDBData(value = { "document-test-data.xml" }, deleteBeforeInsert = true, rinseAndRepeat = true)
-@GenerateKeycloakClient(clientName = USER, scopes = "ocx-doc:all")
+@GenerateKeycloakClient(clientName = USER, scopes = { "ocx-doc:read", "ocx-doc:write", "ocx-doc:delete" })
 class DocumentSpecificationControllerTest extends AbstractTest {
 
     private static final String BASE_PATH = "/internal/document-specification";
