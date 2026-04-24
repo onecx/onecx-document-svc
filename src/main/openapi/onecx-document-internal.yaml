@@ -14,7 +14,7 @@ paths:
   /internal/document/search:
     post:
       security:
-        - oauth2: [ ocx-doc:all, ocx-doc:write, ocx-doc:read ]
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentController
       description: Gets documents by criteria
@@ -71,6 +71,8 @@ paths:
                 $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/document-specification:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentSpecificationController
       description: Finds all specification of documents
@@ -87,6 +89,8 @@ paths:
         "404":
           description: Not found
     post:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - DocumentSpecificationController
       description: Creates specification of document
@@ -107,6 +111,8 @@ paths:
           description: Not found
   /internal/document-specification/{id}:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentSpecificationController
       description: Gets document specification by id
@@ -127,6 +133,8 @@ paths:
         "404":
           description: Not found
     put:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - DocumentSpecificationController
       description: Updates specification of document by id
@@ -152,6 +160,8 @@ paths:
         "404":
           description: Not found
     delete:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:delete ]
       tags:
         - DocumentSpecificationController
       description: Deletes specification of document by id
@@ -175,6 +185,8 @@ paths:
           description: Not found
   /internal/document-type:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentTypeController
       description: Finds all types of document
@@ -191,6 +203,8 @@ paths:
         "404":
           description: Not found
     post:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - DocumentTypeController
       description: Creates type of document
@@ -211,6 +225,8 @@ paths:
           description: Not found
   /internal/document-type/{id}:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentTypeController
       description: Gets document type by id
@@ -231,6 +247,8 @@ paths:
         "404":
           description: Not found
     put:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - DocumentTypeController
       description: Updates type of document by id
@@ -256,6 +274,8 @@ paths:
         "404":
           description: Not found
     delete:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:delete ]
       tags:
         - DocumentTypeController
       description: Deletes type of document by id
@@ -280,7 +300,7 @@ paths:
   /internal/document/bulkupdate:
     put:
       security:
-        - oauth2: [ ocx-doc:all]
+        - oauth2: [ ocx-doc:all, ocx-doc:write]
       tags:
         - DocumentController
       description: Bulk Update an document
@@ -305,6 +325,8 @@ paths:
           description: Not found
   /internal/document/channels:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentController
       description: Gets all channels
@@ -321,7 +343,7 @@ paths:
   /internal/document/delete-bulk-documents:
     delete:
       security:
-        - oauth2: [ ocx-doc:all]
+        - oauth2: [ ocx-doc:all, ocx-doc:delete]
       tags:
         - DocumentController
       description: Delete Multiple Document by Ids
@@ -341,7 +363,7 @@ paths:
   /internal/document/files/upload/failed/{id}:
     get:
       security:
-        - oauth2: [ ocx-doc:all, ocx-doc:write, ocx-doc:read]
+        - oauth2: [ ocx-doc:all, ocx-doc:read]
       tags:
         - DocumentController
       description: Get data of all the failed attachment based on document ID
@@ -366,7 +388,7 @@ paths:
   /internal/document/search/show-all-documents:
     post:
       security:
-        - oauth2: [ ocx-doc:all, ocx-doc:write, ocx-doc:read]
+        - oauth2: [ ocx-doc:all, ocx-doc:read]
       tags:
         - DocumentController
       description: Gets all documents by criteria
@@ -394,7 +416,7 @@ paths:
   /internal/document/{id}:
     get:
       security:
-        - oauth2: [ ocx-doc:all, ocx-doc:write, ocx-doc:read]
+        - oauth2: [ ocx-doc:all, ocx-doc:read]
       tags:
         - DocumentController
       description: Gets Document by Id
@@ -443,7 +465,7 @@ paths:
           description: Not found
     delete:
       security:
-        - oauth2: [ ocx-doc:all, ocx-doc:write]
+        - oauth2: [ ocx-doc:all, ocx-doc:delete]
       tags:
         - DocumentController
       description: Delete Document by Id
@@ -461,6 +483,8 @@ paths:
           description: Not found
   /internal/supported-mime-type:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - SupportedMimeTypeController
       description: Finds all supported mime-types
@@ -477,6 +501,8 @@ paths:
         "404":
           description: Not found
     post:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - SupportedMimeTypeController
       description: Creates supported mime-type
@@ -497,6 +523,8 @@ paths:
           description: Not found
   /internal/supported-mime-type/{id}:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - SupportedMimeTypeController
       description: Gets supported mime-type by id
@@ -517,6 +545,8 @@ paths:
         "404":
           description: Not found
     put:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - SupportedMimeTypeController
       description: Updates supported mime-type by id
@@ -542,6 +572,8 @@ paths:
         "404":
           description: Not found
     delete:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:delete ]
       tags:
         - SupportedMimeTypeController
       description: Deletes supported mime-type by id
@@ -565,6 +597,8 @@ paths:
           description: Not found
   /internal/attachment/metadata:
     patch:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - AttachmentController
       operationId: uploadAttachmentsMetadata
@@ -583,6 +617,8 @@ paths:
           description: Resource not found
   /internal/attachment/storage-audit:
     post:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:write ]
       tags:
         - AttachmentController
       operationId: createStorageAuditsForAttachments
@@ -601,6 +637,8 @@ paths:
           description: Resource not found
   /internal/attachment/{attachmentId}:
     get:
+      security:
+        - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - AttachmentController
       operationId: getAttachmentDetails
@@ -631,6 +669,7 @@ components:
             ocx-doc:all: Grants access to all operations
             ocx-doc:write: Grants access to write operations
             ocx-doc:read: Grants read access
+            ocx-doc:delete: Grants access to delete operations
 
   schemas:
     AttachmentCreateUpdate:
