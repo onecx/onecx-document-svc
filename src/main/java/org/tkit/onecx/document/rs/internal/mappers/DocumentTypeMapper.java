@@ -22,8 +22,6 @@ public interface DocumentTypeMapper {
     @Mapping(target = "modificationCount", ignore = true)
     @Mapping(target = "persisted", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "description", ignore = true)
-    @Mapping(target = "activeStatus", ignore = true)
     DocumentType map(DocumentTypeCreateUpdateDTO createUpdateDTO);
 
     DocumentTypeDTO mapDocumentType(DocumentType documentType);
@@ -37,8 +35,6 @@ public interface DocumentTypeMapper {
     @Mapping(target = "modificationCount", ignore = true)
     @Mapping(target = "persisted", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "description", ignore = true)
-    @Mapping(target = "activeStatus", ignore = true)
     void update(DocumentTypeCreateUpdateDTO dto, @MappingTarget DocumentType documentType);
 
     List<DocumentTypeDTO> findAllDocumentType(List<DocumentType> documents);

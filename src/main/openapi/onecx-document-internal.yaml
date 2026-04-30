@@ -1039,6 +1039,10 @@ components:
       properties:
         name:
           type: string
+        description:
+          type: string
+        activeStatus:
+          type: boolean
     DocumentType:
       type: object
       properties:
@@ -1057,6 +1061,10 @@ components:
           type: string
         name:
           type: string
+        description:
+          type: string
+        activeStatus:
+          type: boolean
     File:
       type: object
       properties:
