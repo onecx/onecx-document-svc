@@ -1,9 +1,9 @@
 package org.tkit.onecx.document.rs.internal.services;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -97,7 +97,9 @@ public class DocumentService {
      * @param document a {@link Document}
      */
     private void setAttachments(DocumentCreateUpdateDTO dto, Document document) {
-        var supportedMimeTypes = Arrays.asList(config.supportedMimeTypes().split("\\s*,\\s*"));
+        var supportedMimeTypes = Stream.of(config.supportedMimeTypes().split(","))
+                .map(String::trim)
+                .toList();
         if (Objects.isNull(dto.getAttachments())) {
             document.setAttachments(null);
         } else {

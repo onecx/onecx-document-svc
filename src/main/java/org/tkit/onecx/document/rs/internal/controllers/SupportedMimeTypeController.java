@@ -1,6 +1,6 @@
 package org.tkit.onecx.document.rs.internal.controllers;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,7 +18,9 @@ public class SupportedMimeTypeController implements SupportedMimeTypeControllerA
 
     @Override
     public Response getAllSupportedMimeTypes() {
-        var mimeTypes = Arrays.asList(config.supportedMimeTypes().split("\\s*,\\s*"));
+        var mimeTypes = Stream.of(config.supportedMimeTypes().split(","))
+                .map(String::trim)
+                .toList();
         return Response.status(Response.Status.OK)
                 .entity(mimeTypes)
                 .build();
