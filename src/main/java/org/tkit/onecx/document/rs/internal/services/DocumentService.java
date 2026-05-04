@@ -1,5 +1,6 @@
 package org.tkit.onecx.document.rs.internal.services;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,13 +10,12 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 
+import org.tkit.onecx.document.DocumentConfig;
 import org.tkit.onecx.document.domain.daos.DocumentDAO;
 import org.tkit.onecx.document.domain.daos.DocumentTypeDAO;
-import org.tkit.onecx.document.domain.daos.SupportedMimeTypeDAO;
 import org.tkit.onecx.document.domain.models.entities.Attachment;
 import org.tkit.onecx.document.domain.models.entities.Document;
 import org.tkit.onecx.document.domain.models.entities.DocumentSpecification;
-import org.tkit.onecx.document.domain.models.entities.SupportedMimeType;
 import org.tkit.onecx.document.rs.internal.exceptions.DocumentException;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentMapper;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentSpecificationMapper;
@@ -39,7 +39,7 @@ public class DocumentService {
     DocumentSpecificationMapper documentSpecificationMapper;
 
     @Inject
-    SupportedMimeTypeDAO mimeTypeDAO;
+    DocumentConfig config;
 
     public Document createDocument(DocumentCreateUpdateDTO dto) {
         var document = documentMapper.map(dto);
@@ -88,7 +88,7 @@ public class DocumentService {
     }
 
     /**
-     * Finds attachment's mimeType {@link SupportedMimeType} by id
+     * Finds attachment's mimeType
      * and sets it in the attachment entity {@link Attachment}, then add
      * {@link Attachment}
      * in document entity {@link Document}.
@@ -97,18 +97,20 @@ public class DocumentService {
      * @param document a {@link Document}
      */
     private void setAttachments(DocumentCreateUpdateDTO dto, Document document) {
+        var supportedMimeTypes = Arrays.asList(config.supportedMimeTypes().split("\\s*,\\s*"));
         if (Objects.isNull(dto.getAttachments())) {
             document.setAttachments(null);
         } else {
             for (AttachmentCreateUpdateDTO attachmentDTO : dto.getAttachments()) {
                 if (Objects.isNull(attachmentDTO.getId()) || attachmentDTO.getId().isEmpty()) {
-                    var mimeType = mimeTypeDAO.findById(attachmentDTO.getMimeTypeId());
-                    if (mimeType == null) {
+                    var mimeType = supportedMimeTypes.stream().filter(mime -> mime.equals(attachmentDTO.getMimeType()))
+                            .findFirst();
+                    if (mimeType.isEmpty()) {
                         throw new DocumentException(Response.Status.NOT_FOUND,
                                 getSupportedMimeTypeNotFoundMsg(dto.getTypeId()));
                     }
                     var attachment = documentMapper.mapAttachment(attachmentDTO);
-                    attachment.setMimeType(mimeType);
+                    attachment.setMimeType(mimeType.get());
                     attachment.setStorageUploadStatus(false);
                     document.getAttachments().add(attachment);
                 }
@@ -152,12 +154,8 @@ public class DocumentService {
                         .filter(dto -> dto.getId() != null)
                         .filter(dto -> entity.getId().equals(dto.getId()))
                         .findFirst();
-                if (dtoOptional.isPresent()) {
-                    var mimeType = mimeTypeDAO.findById(dtoOptional.get().getMimeTypeId());
-                    //                    var mimeType = getSupportedMimeType(dtoOptional.get());
-                    documentMapper.updateAttachment(dtoOptional.get(), entity);
-                    entity.setMimeType(mimeType);
-                }
+                dtoOptional.ifPresent(
+                        attachmentCreateUpdateDTO -> documentMapper.updateAttachment(attachmentCreateUpdateDTO, entity));
             }
             setAttachments(updateDTO, document);
         }
