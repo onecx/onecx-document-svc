@@ -59,11 +59,8 @@ public class StorageUploadAudit extends TraceableEntity {
     @Column(name = "ATTACHMENT_DESCRIPTION")
     private String attachmentDescription;
 
-    @Column(name = "MIMETYPE_GUID")
-    private String mimeTypeId;
-
-    @Column(name = "MIMETYPE_NAME")
-    private String mimeTypeName;
+    @Column(name = "MIMETYPE")
+    private String mimeType;
 
     @Column(name = "SPECIFICATION_GUID")
     private String specificationId;

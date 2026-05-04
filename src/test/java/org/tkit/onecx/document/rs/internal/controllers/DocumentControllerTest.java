@@ -841,12 +841,12 @@ class DocumentControllerTest extends AbstractTest {
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String channelName = "TEST_CHANNEL_NAME";
         final String documentTypeId = "202";
-        final String attachmentMimeTypeId = "152";
+        final String attachmentMimeTypeId = "image/png";
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -875,7 +875,7 @@ class DocumentControllerTest extends AbstractTest {
         assertThat(documentDTO.getAttachments()).hasSize(1);
         assertThat(documentDTO.getAttachments().stream().findFirst().get().getId()).isNotNull();
         assertThat(documentDTO.getAttachments().stream())
-                .allMatch(el -> el.getMimeType().getId().equals(attachmentMimeTypeId));
+                .allMatch(el -> el.getMimeType().equals(attachmentMimeTypeId));
     }
 
     @Test
@@ -921,18 +921,18 @@ class DocumentControllerTest extends AbstractTest {
         final String channelName = "TEST_CHANNEL_NAME";
         final String documentTypeId = "202";
         final String attachmentNamePrefix = "TEST_ATTACHMENT_NAME";
-        final String attachmentMimeTypeId = "152";
+        final String attachmentMimeTypeId = "image/png";
 
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment1 = new AttachmentCreateUpdateDTO();
         attachment1.setId(null);
         attachment1.setName(attachmentNamePrefix + "1");
-        attachment1.setMimeTypeId(attachmentMimeTypeId);
+        attachment1.setMimeType(attachmentMimeTypeId);
         AttachmentCreateUpdateDTO attachment2 = new AttachmentCreateUpdateDTO();
         attachment2.setId("");
         attachment2.setName(attachmentNamePrefix + "2");
-        attachment2.setMimeTypeId(attachmentMimeTypeId);
+        attachment2.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment1);
         attachments.add(attachment2);
@@ -962,7 +962,7 @@ class DocumentControllerTest extends AbstractTest {
         assertThat(documentDetailDTO.getAttachments()).hasSize(2);
         assertThat(documentDetailDTO.getAttachments().stream().findFirst().get().getId()).isNotNull();
         assertThat(documentDetailDTO.getAttachments().stream())
-                .allMatch(el -> el.getMimeType().getId().equals(attachmentMimeTypeId));
+                .allMatch(el -> el.getMimeType().equals(attachmentMimeTypeId));
     }
 
     @Test
@@ -1010,13 +1010,13 @@ class DocumentControllerTest extends AbstractTest {
         documentCategoryDTO.setName(categoryName);
         documentCategoryDTOs.add(documentCategoryDTO);
 
-        final String attachmentMimeTypeId = "151";
+        final String attachmentMimeTypeId = "image/png";
 
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         attachments.add(attachment);
 
         DocumentCreateUpdateDTO documentCreateDTO = new DocumentCreateUpdateDTO();
@@ -1081,7 +1081,7 @@ class DocumentControllerTest extends AbstractTest {
         assertThat(documentDTO.getAttachments()).hasSize(1);
         assertThat(documentDTO.getAttachments().stream().findFirst().get().getId()).isNotNull();
         assertThat(documentDTO.getAttachments().stream())
-                .allMatch(el -> el.getMimeType().getId().equals(attachmentMimeTypeId));
+                .allMatch(el -> el.getMimeType().equals(attachmentMimeTypeId));
     }
 
     @Test
@@ -1090,12 +1090,12 @@ class DocumentControllerTest extends AbstractTest {
         final String channelName = "TEST_CHANNEL_NAME";
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String documentTypeId = "2";
-        final String attachmentMimeTypeId = "2";
+        final String attachmentMimeTypeId = "image/png";
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -1122,12 +1122,12 @@ class DocumentControllerTest extends AbstractTest {
         final String documentName = "TEST_DOCUMENT_NAME";
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String channelName = "TEST_CHANNEL_NAME";
-        final String attachmentMimeTypeId = "2";
+        final String attachmentMimeTypeId = "image/png";
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -1154,10 +1154,10 @@ class DocumentControllerTest extends AbstractTest {
         final String documentName = "TEST_DOCUMENT_NAME";
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String documentTypeId = "2";
-        final String attachmentMimeTypeId = "2";
+        final String attachmentMimeTypeId = "image/png";
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -1189,7 +1189,7 @@ class DocumentControllerTest extends AbstractTest {
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(null);
+        attachment.setMimeType(null);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -1207,7 +1207,7 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .post(BASE_PATH);
 
-        postResponse.then().statusCode(500);
+        postResponse.then().statusCode(400);
 
     }
 
@@ -1218,12 +1218,12 @@ class DocumentControllerTest extends AbstractTest {
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String channelName = "TEST_CHANNEL_NAME";
         final String documentTypeId = "200";
-        final String attachmentMimeTypeId = "2";
+        final String attachmentMimeTypeId = "image/png";
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -1251,12 +1251,12 @@ class DocumentControllerTest extends AbstractTest {
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String channelName = "TEST_CHANNEL_NAME";
         final String documentTypeId = "202";
-        final String attachmentMimeTypeId = "152";
+        final String attachmentMimeTypeId = "image/png";
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -1286,7 +1286,7 @@ class DocumentControllerTest extends AbstractTest {
         assertThat(documentDTO.getAttachments()).hasSize(1);
         assertThat(documentDTO.getAttachments().stream().findFirst().get().getId()).isNotNull();
         assertThat(documentDTO.getAttachments().stream())
-                .allMatch(el -> el.getMimeType().getId().equals(attachmentMimeTypeId));
+                .allMatch(el -> el.getMimeType().equals(attachmentMimeTypeId));
     }
 
     @Test
@@ -1296,12 +1296,12 @@ class DocumentControllerTest extends AbstractTest {
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String channelName = "TEST_CHANNEL_NAME";
         final String documentTypeId = "202";
-        final String attachmentMimeTypeId = "200";
+        final String attachmentMimeTypeId = "image/webp";
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         attachments.add(attachment);
 
@@ -1328,12 +1328,12 @@ class DocumentControllerTest extends AbstractTest {
         final String attachmentName = "TEST_ATTACHMENT_NAME";
         final String channelName = "TEST_CHANNEL_NAME";
         final String documentTypeId = "202";
-        final String attachmentMimeTypeId = "152";
+        final String attachmentMimeTypeId = "image/png";
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         channelDTO.setName(channelName);
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         TimePeriodDTO timePeriodDTO = new TimePeriodDTO();
         timePeriodDTO.setStartDateTime(OffsetDateTime.now());
         timePeriodDTO.setEndDateTime(OffsetDateTime.now().plusMonths(12));
@@ -1370,119 +1370,8 @@ class DocumentControllerTest extends AbstractTest {
         assertThat(documentDTO.getAttachments().stream().findFirst().get().getValidFor().getEndDateTime())
                 .isNotNull();
         assertThat(documentDTO.getAttachments().stream())
-                .allMatch(el -> el.getMimeType().getId().equals(attachmentMimeTypeId));
+                .allMatch(el -> el.getMimeType().equals(attachmentMimeTypeId));
     }
-
-    //    @Test
-    //    @DisplayName("Updates basic and required fields in Document.")
-    //    void testSuccessfulUpdateBasicAndRequiredFieldsInDocument() {
-    //        Set<String> tags = new HashSet<>();
-    //        tags.add("TEST_UPDATE_DOCUMENT_TAG_1");
-    //        tags.add("TEST_UPDATE_DOCUMENT_TAG_2");
-    //        final String documentTypeId = "201";
-    //        ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
-    //        final String channelName = "TEST_CHANNEL_NAME";
-    //        channelDTO.setName(channelName);
-    //        final String attachmentMimeTypeId = "151";
-    //        List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
-    //        AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
-    //        final String attachmentName = "TEST_UPDATE_ATTACHMENT_NAME";
-    //        attachment.setName(attachmentName);
-    //        attachment.setMimeTypeId(attachmentMimeTypeId);
-    //        attachments.add(attachment);
-    //        RelatedObjectRefCreateUpdateDTO relatedObjectRefCreateUpdateDTO = new RelatedObjectRefCreateUpdateDTO();
-    //        relatedObjectRefCreateUpdateDTO.setInvolvement("TEST_UPDATE");
-    //
-    //        DocumentCreateUpdateDTO documentCreateDTO = new DocumentCreateUpdateDTO();
-    //        final String documentName = "TEST_UPDATE_DOCUMENT_NAME";
-    //        final String documentDescription = "TEST_UPDATE_DOCUMENT_DESCRIPTION";
-    //        final LifeCycleState documentState = LifeCycleState.ARCHIVED;
-    //        final String documentVersion = "TEST_UPDATE_DOCUMENT_VERSION";
-    //        documentCreateDTO.setName(documentName);
-    //        documentCreateDTO.setDescription(documentDescription);
-    //        documentCreateDTO.setLifeCycleState(documentState);
-    //        documentCreateDTO.setDocumentVersion(documentVersion);
-    //        documentCreateDTO.setTags(tags);
-    //        documentCreateDTO.setTypeId(documentTypeId);
-    //        documentCreateDTO.setChannel(channelDTO);
-    //        documentCreateDTO.setAttachments(attachments);
-    //        documentCreateDTO.setRelatedObject(relatedObjectRefCreateUpdateDTO);
-    //
-    //        Response putResponse = given()
-    //                .auth()
-    //                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-    //                .contentType(MediaType.APPLICATION_JSON)
-    //                .body(documentCreateDTO)
-    //                .when()
-    //                .put(BASE_PATH + DIRECTORY_SEPERATOR + EXISTING_DOCUMENT_ID);
-    //
-    //        putResponse.then().statusCode(201);
-    //        DocumentDetailDTO documentDetailDTO = putResponse.as(DocumentDetailDTO.class);
-    //
-    //        assertThat(documentDetailDTO.getId()).isEqualTo(EXISTING_DOCUMENT_ID);
-    //        assertThat(documentDetailDTO.getName()).isEqualTo(documentName);
-    //        assertThat(documentDetailDTO.getDescription()).isEqualTo(documentDescription);
-    //        assertThat(documentDetailDTO.getLifeCycleState()).isEqualTo(documentState);
-    //        assertThat(documentDetailDTO.getDocumentVersion()).isEqualTo(documentVersion);
-    //        assertThat(documentDetailDTO.getTags()).hasSize(2);
-    //        assertThat(documentDetailDTO.getTags()).contains("TEST_UPDATE_DOCUMENT_TAG_1");
-    //        assertThat(documentDetailDTO.getTags()).contains("TEST_UPDATE_DOCUMENT_TAG_2");
-    //        assertThat(documentDetailDTO.getType().getId()).isEqualTo(documentTypeId);
-    //        assertThat(documentDetailDTO.getSpecification()).isNull();
-    //        assertThat(documentDetailDTO.getChannel().getId()).isNotNull();
-    //        assertThat(documentDetailDTO.getChannel().getName()).isEqualTo(channelName);
-    //        assertThat(documentDetailDTO.getRelatedObject().getId()).isNotNull();
-    //        assertThat(documentDetailDTO.getRelatedObject().getInvolvement()).isEqualTo("TEST_UPDATE");
-    //        assertThat(documentDetailDTO.getDocumentRelationships()).hasSize(1);
-    //        assertThat(documentDetailDTO.getDocumentRelationships().stream().findFirst().get().getId())
-    //                .isEqualTo(DOCUMENT_RELATIONSHIP_ID);
-    //        assertThat(documentDetailDTO.getCharacteristics()).hasSize(1);
-    //        assertThat(documentDetailDTO.getCharacteristics().stream().findFirst().get().getId())
-    //                .isEqualTo(DOCUMENT_CHARACTERISTIC_ID);
-    //        assertThat(documentDetailDTO.getRelatedParties()).hasSize(1);
-    //        assertThat(documentDetailDTO.getRelatedParties().stream().findFirst().get().getId())
-    //                .isEqualTo(RELATED_PARTY_ID);
-    //        assertThat(documentDetailDTO.getCategories()).hasSize(3);
-    //        assertThat(documentDetailDTO.getAttachments()).hasSize(3);
-    //        assertThat(documentDetailDTO.getAttachments().stream())
-    //                .allMatch(el -> el.getMimeType().getId().equals(attachmentMimeTypeId));
-    //
-    //        documentDetailDTO = given()
-    //                .auth()
-    //                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-    //                .accept(MediaType.APPLICATION_JSON)
-    //                .when()
-    //                .get(BASE_PATH + DIRECTORY_SEPERATOR + EXISTING_DOCUMENT_ID)
-    //                .as(DocumentDetailDTO.class);
-    //
-    //        assertThat(documentDetailDTO.getId()).isEqualTo(EXISTING_DOCUMENT_ID);
-    //        assertThat(documentDetailDTO.getName()).isEqualTo(documentName);
-    //        assertThat(documentDetailDTO.getDescription()).isEqualTo(documentDescription);
-    //        assertThat(documentDetailDTO.getLifeCycleState()).isEqualTo(documentState);
-    //        assertThat(documentDetailDTO.getDocumentVersion()).isEqualTo(documentVersion);
-    //        assertThat(documentDetailDTO.getTags()).hasSize(2);
-    //        assertThat(documentDetailDTO.getTags()).contains("TEST_UPDATE_DOCUMENT_TAG_1");
-    //        assertThat(documentDetailDTO.getTags()).contains("TEST_UPDATE_DOCUMENT_TAG_2");
-    //        assertThat(documentDetailDTO.getType().getId()).isEqualTo(documentTypeId);
-    //        assertThat(documentDetailDTO.getSpecification()).isNull();
-    //        assertThat(documentDetailDTO.getChannel().getId()).isNotNull();
-    //        assertThat(documentDetailDTO.getChannel().getName()).isEqualTo(channelName);
-    //        assertThat(documentDetailDTO.getRelatedObject().getId()).isNotNull();
-    //        assertThat(documentDetailDTO.getRelatedObject().getInvolvement()).isEqualTo("TEST_UPDATE");
-    //        assertThat(documentDetailDTO.getDocumentRelationships()).hasSize(1);
-    //        assertThat(documentDetailDTO.getDocumentRelationships().stream().findFirst().get().getId())
-    //                .isEqualTo(DOCUMENT_RELATIONSHIP_ID);
-    //        assertThat(documentDetailDTO.getCharacteristics()).hasSize(1);
-    //        assertThat(documentDetailDTO.getCharacteristics().stream().findFirst().get().getId())
-    //                .isEqualTo(DOCUMENT_CHARACTERISTIC_ID);
-    //        assertThat(documentDetailDTO.getRelatedParties()).hasSize(1);
-    //        assertThat(documentDetailDTO.getRelatedParties().stream().findFirst().get().getId())
-    //                .isEqualTo(RELATED_PARTY_ID);
-    //        assertThat(documentDetailDTO.getCategories()).hasSize(3);
-    //        assertThat(documentDetailDTO.getAttachments()).hasSize(3);
-    //        assertThat(documentDetailDTO.getAttachments().stream())
-    //                .allMatch(el -> el.getMimeType().getId().equals(attachmentMimeTypeId));
-    //    }
 
     @Test
     @DisplayName("Updates collections in Document.")
@@ -1521,10 +1410,10 @@ class DocumentControllerTest extends AbstractTest {
         AttachmentCreateUpdateDTO existingAttachment = new AttachmentCreateUpdateDTO();
         existingAttachment.setId("101");
         existingAttachment.setName("TEST_Name_1");
-        existingAttachment.setMimeTypeId("152");
+        existingAttachment.setMimeType("image/png");
         AttachmentCreateUpdateDTO newAttachment = new AttachmentCreateUpdateDTO();
         newAttachment.setName("TEST_Name_2");
-        newAttachment.setMimeTypeId("151");
+        newAttachment.setMimeType("image/jpg");
         List<AttachmentCreateUpdateDTO> attachments = List.of(existingAttachment, newAttachment);
 
         DocumentCreateUpdateDTO documentCreateDTO = new DocumentCreateUpdateDTO();
@@ -1620,12 +1509,12 @@ class DocumentControllerTest extends AbstractTest {
                 .stream().filter(p -> p.getId().equals("101")).toList();
         assertThat(listAttachment1).hasSize(1);
         AttachmentDTO existingAttachmentDTO = listAttachment1.get(0);
-        assertThat(existingAttachmentDTO.getMimeType().getId()).isEqualTo("152");
+        assertThat(existingAttachmentDTO.getMimeType()).isEqualTo("image/png");
         List<AttachmentDTO> listAttachment2 = documentDetailDTO.getAttachments()
                 .stream().filter(p -> !p.getId().equals("101")).toList();
         assertThat(listAttachment2).hasSize(2);
         AttachmentDTO newAttachmentDTO = listAttachment2.get(0);
-        assertThat(newAttachmentDTO.getMimeType().getId()).isEqualTo("151");
+        assertThat(newAttachmentDTO.getMimeType()).isEqualTo("image/png");
     }
 
     @Test
@@ -1635,12 +1524,12 @@ class DocumentControllerTest extends AbstractTest {
         ChannelCreateUpdateDTO channelDTO = new ChannelCreateUpdateDTO();
         final String channelName = "TEST_CHANNEL_NAME";
         channelDTO.setName(channelName);
-        final String attachmentMimeTypeId = "2";
+        final String attachmentMimeTypeId = "image/png";
         List<AttachmentCreateUpdateDTO> attachments = new ArrayList<>();
         AttachmentCreateUpdateDTO attachment = new AttachmentCreateUpdateDTO();
         final String attachmentName = "TEST_UPDATE_ATTACHMENT_NAME";
         attachment.setName(attachmentName);
-        attachment.setMimeTypeId(attachmentMimeTypeId);
+        attachment.setMimeType(attachmentMimeTypeId);
         attachments.add(attachment);
 
         DocumentCreateUpdateDTO documentCreateDTO = new DocumentCreateUpdateDTO();

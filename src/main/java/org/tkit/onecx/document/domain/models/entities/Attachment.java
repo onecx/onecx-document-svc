@@ -7,9 +7,6 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -63,12 +60,8 @@ public class Attachment extends TraceableEntity {
      */
     @Embedded
     private TimePeriod validFor;
-    /**
-     * An attachment mimeType reference.
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "MIMETYPE_GUID")
-    private SupportedMimeType mimeType;
+
+    private String mimeType;
 
     @Transient
     private String file;

@@ -295,8 +295,7 @@ public interface DocumentMapper {
     @Mapping(target = "fileName", source = "attachment.fileName")
     @Mapping(target = "name", source = "attachment.name")
     @Mapping(target = "attachmentDescription", source = "attachment.description")
-    @Mapping(target = "mimeTypeId", source = "attachment.mimeType.id")
-    @Mapping(target = "mimeTypeName", source = "attachment.mimeType.name")
+    @Mapping(target = "mimeType", source = "attachment.mimeType")
     @Mapping(target = "tenantId", ignore = true)
     StorageUploadAudit mapToStorageUploadAudit(String documentId, Document document, Attachment attachment);
 

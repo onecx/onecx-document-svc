@@ -1,0 +1,32 @@
+[.configuration-legend]
+icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime
+[.configuration-reference.searchable, cols="80,.^10,.^10"]
+|===
+
+h|[.header-title]##Configuration property##
+h|Type
+h|Default
+
+a| [[onecx-document-svc_onecx-document-supported-mime-types]] [.property-path]##link:#onecx-document-svc_onecx-document-supported-mime-types[`+++onecx.document.supported-mime-types+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++onecx.document.supported-mime-types+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Supported MIME types for document uploads, separated by commas.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++ONECX_DOCUMENT_SUPPORTED_MIME_TYPES+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++ONECX_DOCUMENT_SUPPORTED_MIME_TYPES+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|required icon:exclamation-circle[title=Configuration property is required]
+
+|===
+

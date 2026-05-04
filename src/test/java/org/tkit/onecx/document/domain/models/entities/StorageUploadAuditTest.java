@@ -28,8 +28,7 @@ class StorageUploadAuditTest extends AbstractTest {
         String fileName = "File 1";
         String name = "Bhupendra Singh";
         String attachmentDescription = "Attachment 1";
-        String mimeTypeId = "1122";
-        String mimeTypeName = "xls";
+        String mimeTypeId = "image/png";
         String specificationId = "3535";
         String specificationName = "specification";
         String relatedObjectId = "7788";
@@ -51,8 +50,7 @@ class StorageUploadAuditTest extends AbstractTest {
         storageUploadAudit.setFileName(fileName);
         storageUploadAudit.setName(name);
         storageUploadAudit.setAttachmentDescription(attachmentDescription);
-        storageUploadAudit.setMimeTypeId(mimeTypeId);
-        storageUploadAudit.setMimeTypeName(mimeTypeName);
+        storageUploadAudit.setMimeType(mimeTypeId);
         storageUploadAudit.setSpecificationId(specificationId);
         storageUploadAudit.setSpecificationName(specificationName);
         storageUploadAudit.setRelatedObjectId(relatedObjectId);

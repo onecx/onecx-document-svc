@@ -3,5 +3,7 @@ include::onecx-document-svc-attributes.adoc[opts=optional]
 = OneCX Document Backend Service
 
 
+== Configuration
+include::onecx-document-svc.adoc[opts=optional]
 
 include::onecx-document-svc-docs.adoc[opts=optional]

@@ -27,6 +27,7 @@ quarkus.hibernate-orm.metrics.enabled=true
 %prod.quarkus.datasource.jdbc.url=${DB_URL:jdbc:postgresql://postgresdb:5432/onecx-document?sslmode=disable}
 %prod.quarkus.datasource.username=${DB_USER:onecx-document}
 %prod.quarkus.datasource.password=${DB_PWD:onecx-document}
+%prod.onecx.document.supported-mime-types=application/pdf,image/jpeg,image/jpg,image/png
 %prod.quarkus.oidc-client.client-id=${quarkus.application.name}
 tkit.rs.context.tenant-id.enabled=true
 ## TEST

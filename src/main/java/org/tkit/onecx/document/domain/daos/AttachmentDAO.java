@@ -10,7 +10,6 @@ import jakarta.persistence.criteria.Root;
 
 import org.tkit.onecx.document.domain.models.entities.Attachment;
 import org.tkit.onecx.document.domain.models.entities.Attachment_;
-import org.tkit.onecx.document.domain.models.entities.SupportedMimeType;
 import org.tkit.quarkus.jpa.daos.AbstractDAO;
 import org.tkit.quarkus.jpa.models.TraceableEntity_;
 
