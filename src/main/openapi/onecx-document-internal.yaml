@@ -17,8 +17,8 @@ paths:
         - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentController
-      description: Gets documents by criteria
-      operationId: getDocumentByCriteria
+      description: Search documents by criteria
+      operationId: searchDocumentsByCriteria
       requestBody:
         content:
           application/json:
