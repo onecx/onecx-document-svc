@@ -20,6 +20,7 @@ paths:
       description: Search documents by criteria
       operationId: searchDocumentsByCriteria
       requestBody:
+        required: true
         content:
           application/json:
             schema:

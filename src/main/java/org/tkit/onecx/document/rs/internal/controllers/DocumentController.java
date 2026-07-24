@@ -76,15 +76,6 @@ public class DocumentController implements DocumentControllerApi {
     @Override
     public Response searchDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
-        if (Objects.nonNull(criteriaDTO.getStartDate()) && !criteriaDTO.getStartDate().isEmpty()) { // added this for
-                                                                                                    // date search
-
-            criteria.setStartDate(LocalDateTime.parse(criteriaDTO.getStartDate(), CUSTOM_DATE_TIME_FORMATTER));
-        }
-        if (Objects.nonNull(criteriaDTO.getEndDate()) && !criteriaDTO.getEndDate().isEmpty()) {
-
-            criteria.setEndDate(LocalDateTime.parse(criteriaDTO.getEndDate(), CUSTOM_DATE_TIME_FORMATTER));
-        }
         PageResult<Document> documents = documentDAO.findBySearchCriteria(criteria);
         return Response.ok(documentMapper.mapToPageResultDTO(documents))
                 .build();
