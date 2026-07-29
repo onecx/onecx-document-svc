@@ -102,7 +102,6 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @Override
-    @Transactional
     public Response getFailedAttachmentData(String documentId) {
         List<StorageUploadAudit> failedAttachmentList = storageUploadAuditDAO
                 .findFailedAttachmentsByDocumentId(documentId);
@@ -179,7 +178,6 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @Override
-    @Transactional
     public Response showAllDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
         if (Objects.nonNull(criteriaDTO.getStartDate()) && !criteriaDTO.getStartDate().isEmpty()) {
