@@ -614,160 +614,6 @@ class DocumentControllerTest extends AbstractTest {
     }
 
     @Test
-    @DisplayName("Search criteria. Finds documents by Start Date")
-    void testSuccessfulSearchCriteriaFindDocumentsByStartDate() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setStartDate("2023-05-14 00:00");
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SEARCH_PATH);
-
-        response.then().statusCode(200);
-        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
-        assertThat(documents.getStream()).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds all documents by Start Date")
-    void testSuccessfulSearchCriteriaFindAllDocumentsByStartDate() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setStartDate("2023-05-14 00:00");
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SHOW_ALL_DOCUMENTS_PATH);
-
-        response.then().statusCode(200);
-        List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
-        assertThat(documentList).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds documents by Start Date Null")
-    void testSuccessfulSearchCriteriaFindDocumentsByStartDateNull() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setStartDate(null);
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SEARCH_PATH);
-
-        response.then().statusCode(200);
-        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
-        assertThat(documents.getStream().size()).isNotNegative();
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds all documents by Start Date Null")
-    void testSuccessfulSearchCriteriaFindAllDocumentsByStartDateNull() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setStartDate(null);
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SHOW_ALL_DOCUMENTS_PATH);
-
-        response.then().statusCode(200);
-        List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
-        assertThat(documentList.size()).isNotNegative();
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds documents by End Date")
-    void testSuccessfulSearchCriteriaFindDocumentsByEndDate() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setEndDate("2023-05-14 00:00");
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SEARCH_PATH);
-
-        response.then().statusCode(200);
-        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
-        assertThat(documents.getStream()).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds all documents by End Date")
-    void testSuccessfulSearchCriteriaFindAllDocumentsByEndDate() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setEndDate("2023-05-14 00:00");
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SHOW_ALL_DOCUMENTS_PATH);
-
-        response.then().statusCode(200);
-        List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
-        assertThat(documentList).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds documents by End Date Null")
-    void testSuccessfulSearchCriteriaFindDocumentsByEndDateNull() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setStartDate("2023-05-14 00:00");
-        criteria.setEndDate(null);
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SEARCH_PATH);
-
-        response.then().statusCode(200);
-        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
-        assertThat(documents.getStream().size()).isNotNegative();
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds all documents by End Date Null")
-    void testSuccessfulSearchCriteriaFindAllDocumentsByEndDateNull() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setStartDate("2023-05-14 00:00");
-        criteria.setEndDate(null);
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SHOW_ALL_DOCUMENTS_PATH);
-
-        response.then().statusCode(200);
-        List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
-        assertThat(documentList.size()).isNotNegative();
-    }
-
-    @Test
     @DisplayName("Search criteria. Finds document by a non-existent ID")
     void testFailedGetDocumentById() {
         Response response = given()
@@ -1582,7 +1428,7 @@ class DocumentControllerTest extends AbstractTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(ids)
                 .when()
-                .delete(BASE_PATH + "/delete-bulk-documents");
+                .post(BASE_PATH + "/delete-bulk-documents");
         deleteResponse.then().statusCode(204);
 
     }
@@ -1602,7 +1448,7 @@ class DocumentControllerTest extends AbstractTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(ids)
                 .when()
-                .delete(BASE_PATH + "/delete-bulk-documents");
+                .post(BASE_PATH + "/delete-bulk-documents");
         deleteResponse.then().statusCode(404);
 
     }

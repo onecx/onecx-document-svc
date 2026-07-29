@@ -74,6 +74,7 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @Override
+    @Transactional
     public Response searchDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
         PageResult<Document> documents = documentDAO.findBySearchCriteria(criteria);
@@ -101,6 +102,7 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @Override
+    @Transactional
     public Response getFailedAttachmentData(String documentId) {
         List<StorageUploadAudit> failedAttachmentList = storageUploadAuditDAO
                 .findFailedAttachmentsByDocumentId(documentId);
@@ -110,6 +112,7 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @Override
+    @Transactional
     public Response updateDocument(String id, DocumentCreateUpdateDTO documentCreateUpdateDTO) {
         var document = documentDAO.findDocumentById(id);
         if (Objects.isNull(document)) {
@@ -138,6 +141,7 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @Override
+    @Transactional
     public Response bulkUpdateDocument(List<DocumentCreateUpdateDTO> documentCreateUpdateDTO) {
         Iterator<DocumentCreateUpdateDTO> it = documentCreateUpdateDTO.listIterator();
         List<Document> document1 = new ArrayList<>();
@@ -175,6 +179,7 @@ public class DocumentController implements DocumentControllerApi {
     }
 
     @Override
+    @Transactional
     public Response showAllDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
         if (Objects.nonNull(criteriaDTO.getStartDate()) && !criteriaDTO.getStartDate().isEmpty()) {
