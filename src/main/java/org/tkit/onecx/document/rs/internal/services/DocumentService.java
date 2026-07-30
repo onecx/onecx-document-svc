@@ -1,6 +1,8 @@
 package org.tkit.onecx.document.rs.internal.services;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -11,9 +13,11 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 
 import org.tkit.onecx.document.DocumentConfig;
+import org.tkit.onecx.document.domain.criteria.DocumentSearchCriteria;
 import org.tkit.onecx.document.domain.daos.DocumentDAO;
 import org.tkit.onecx.document.domain.daos.DocumentTypeDAO;
 import org.tkit.onecx.document.domain.models.entities.Attachment;
+import org.tkit.onecx.document.domain.models.entities.Channel;
 import org.tkit.onecx.document.domain.models.entities.Document;
 import org.tkit.onecx.document.domain.models.entities.DocumentSpecification;
 import org.tkit.onecx.document.rs.internal.exceptions.DocumentException;
@@ -22,6 +26,7 @@ import org.tkit.onecx.document.rs.internal.mappers.DocumentSpecificationMapper;
 
 import gen.org.tkit.onecx.document.rs.internal.model.AttachmentCreateUpdateDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.DocumentCreateUpdateDTO;
+import gen.org.tkit.onecx.document.rs.internal.model.DocumentPageResultDTO;
 
 @ApplicationScoped
 public class DocumentService {
@@ -41,6 +46,7 @@ public class DocumentService {
     @Inject
     DocumentConfig config;
 
+    @Transactional
     public Document createDocument(DocumentCreateUpdateDTO dto) {
         var document = documentMapper.map(dto);
         var documentType = typeDAO.findById(dto.getTypeId());
@@ -51,6 +57,62 @@ public class DocumentService {
         setSpecification(dto, document);
         setAttachments(dto, document);
         return documentDAO.create(document);
+    }
+
+    /**
+     * Searches documents and maps them to DTO within the same transaction
+     * to avoid lazy-loading issues during mapping.
+     */
+    @Transactional
+    public DocumentPageResultDTO searchDocuments(DocumentSearchCriteria criteria) {
+        var result = documentDAO.findBySearchCriteria(criteria);
+        return documentMapper.mapToPageResultDTO(result);
+    }
+
+    @Transactional
+    public boolean deleteDocumentById(String id) {
+        var document = documentDAO.findById(id);
+        if (Objects.isNull(document)) {
+            return false;
+        }
+        documentDAO.delete(document);
+        return true;
+    }
+
+    @Transactional
+    public Document updateDocumentById(String id, DocumentCreateUpdateDTO dto) {
+        var document = documentDAO.findDocumentById(id);
+        if (Objects.isNull(document)) {
+            return null;
+        }
+        document = updateDocument(document, dto);
+        return documentDAO.update(document);
+    }
+
+    @Transactional
+    public List<Document> bulkUpdateDocuments(List<DocumentCreateUpdateDTO> dtos) {
+        List<Document> results = new ArrayList<>();
+        for (DocumentCreateUpdateDTO dto : dtos) {
+            var document = documentDAO.findDocumentById(dto.getId());
+            if (Objects.isNull(document)) {
+                return null;
+            }
+            document = updateDocument(document, dto);
+            results.add(document);
+        }
+        return documentDAO.update(results.stream()).toList();
+    }
+
+    @Transactional
+    public boolean deleteBulkDocuments(List<String> ids) {
+        for (String id : ids) {
+            var document = documentDAO.findById(id);
+            if (Objects.isNull(document)) {
+                return false;
+            }
+            documentDAO.delete(document);
+        }
+        return true;
     }
 
     @Transactional

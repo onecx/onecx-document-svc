@@ -1280,7 +1280,7 @@ class DocumentControllerTest extends AbstractTest {
                 .when()
                 .put(BASE_PATH + DIRECTORY_SEPERATOR + EXISTING_DOCUMENT_ID);
 
-        putResponse.then().statusCode(201);
+        putResponse.then().statusCode(204);
 
         DocumentDetailDTO documentDetailDTO = given()
                 .auth()
@@ -1482,7 +1482,7 @@ class DocumentControllerTest extends AbstractTest {
                 .body(dtoList)
                 .when()
                 .put(BASE_PATH + "/bulkupdate");
-        postResponse.then().statusCode(201);
+        postResponse.then().statusCode(200);
     }
 
     @Test

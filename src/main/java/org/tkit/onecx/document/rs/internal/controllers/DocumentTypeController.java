@@ -1,5 +1,7 @@
 package org.tkit.onecx.document.rs.internal.controllers;
 
+import static jakarta.transaction.Transactional.TxType.NOT_SUPPORTED;
+
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,6 +15,7 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.tkit.onecx.document.domain.daos.DocumentTypeDAO;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentTypeMapper;
 import org.tkit.onecx.document.rs.internal.mappers.ExceptionMapper;
+import org.tkit.onecx.document.rs.internal.services.DocumentTypeService;
 import org.tkit.quarkus.jpa.exceptions.ConstraintException;
 
 import gen.org.tkit.onecx.document.rs.internal.DocumentTypeControllerApi;
@@ -20,21 +23,20 @@ import gen.org.tkit.onecx.document.rs.internal.model.DocumentTypeCreateUpdateDTO
 import gen.org.tkit.onecx.document.rs.internal.model.ProblemDetailResponseDTO;
 
 @ApplicationScoped
+@Transactional(value = NOT_SUPPORTED)
 public class DocumentTypeController implements DocumentTypeControllerApi {
-
     @Inject
     DocumentTypeDAO documentTypeDAO;
-
     @Inject
     DocumentTypeMapper documentTypeMapper;
-
+    @Inject
+    DocumentTypeService documentTypeService;
     @Inject
     ExceptionMapper exceptionMapper;
 
     @Override
-    @Transactional
     public Response createDocumentType(DocumentTypeCreateUpdateDTO documentTypeCreateUpdateDTO) {
-        var documentType = documentTypeDAO.create(documentTypeMapper.map(documentTypeCreateUpdateDTO));
+        var documentType = documentTypeService.createDocumentType(documentTypeCreateUpdateDTO);
         return Response.status(Response.Status.CREATED)
                 .entity(documentTypeMapper.mapDocumentType(documentType))
                 .build();
@@ -60,27 +62,21 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
     }
 
     @Override
-    @Transactional
     public Response deleteDocumentTypeById(String id) {
-        var documentType = documentTypeDAO.findById(id);
-        if (Objects.nonNull(documentType)) {
-            documentTypeDAO.delete(documentType);
+        boolean deleted = documentTypeService.deleteDocumentTypeById(id);
+        if (deleted) {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Override
-    @Transactional
     public Response updateDocumentTypeById(String id, DocumentTypeCreateUpdateDTO documentTypeCreateUpdateDTO) {
-        var documentType = documentTypeDAO.findById(id);
+        var documentType = documentTypeService.updateDocumentTypeById(id, documentTypeCreateUpdateDTO);
         if (Objects.isNull(documentType)) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        documentTypeMapper.update(documentTypeCreateUpdateDTO, documentType);
-        return Response.status(Response.Status.CREATED)
-                .entity(documentTypeMapper.mapDocumentType(documentTypeDAO.update(documentType)))
-                .build();
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @ServerExceptionMapper
@@ -92,5 +88,4 @@ public class DocumentTypeController implements DocumentTypeControllerApi {
     public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
         return exceptionMapper.constraint(ex);
     }
-
 }

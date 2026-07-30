@@ -128,11 +128,8 @@ class DocumentTypeControllerTest extends AbstractTest {
                 .body(documentTypeUpdateDTO)
                 .when()
                 .put(BASE_PATH + "/" + EXISTING_DOCUMENT_TYPE_ID);
-        putResponse.then().statusCode(CREATED.getStatusCode());
+        putResponse.then().statusCode(NO_CONTENT.getStatusCode());
 
-        DocumentTypeDTO dto = putResponse.as(DocumentTypeDTO.class);
-        assertThat(dto.getId()).isEqualTo(EXISTING_DOCUMENT_TYPE_ID);
-        assertThat(dto.getName()).isEqualTo(documentTypeName);
     }
 
     @Test
