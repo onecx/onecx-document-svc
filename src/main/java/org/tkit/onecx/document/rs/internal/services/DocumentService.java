@@ -1,10 +1,6 @@
 package org.tkit.onecx.document.rs.internal.services;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -95,7 +91,7 @@ public class DocumentService {
         for (DocumentCreateUpdateDTO dto : dtos) {
             var document = documentDAO.findDocumentById(dto.getId());
             if (Objects.isNull(document)) {
-                return null;
+                return Collections.emptyList();
             }
             document = updateDocument(document, dto);
             results.add(document);

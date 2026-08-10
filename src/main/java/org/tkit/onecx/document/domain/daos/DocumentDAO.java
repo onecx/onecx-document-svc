@@ -140,18 +140,6 @@ public class DocumentDAO extends AbstractDAO<Document> {
             predicates.add(cb.equal(cb.lower(root.get(Document_.CHANNEL).get(Channel_.NAME)),
                     criteria.getChannelName().toLowerCase()));
         }
-        if (Objects.nonNull(criteria.getStartDate())) {
-            predicates.add(cb.greaterThanOrEqualTo(root.get(AbstractTraceableEntity_.CREATION_DATE),
-                    (criteria.getStartDate())));
-        }
-        if (Objects.nonNull(criteria.getEndDate())) {
-            predicates.add(cb.lessThanOrEqualTo(root.get(AbstractTraceableEntity_.CREATION_DATE),
-                    (criteria.getEndDate())));
-        }
-        if (Objects.nonNull(criteria.getCreateBy())) {
-            predicates.add(cb.equal(root.get(AbstractTraceableEntity_.CREATION_USER), criteria.getCreateBy()));
-        }
-
         if (isNotEmpty(criteria.getObjectReferenceId())) {
             predicates.add(
                     cb.like(cb.lower(root.get(Document_.RELATED_OBJECT).get(RelatedObjectRef_.OBJECT_REFERENCE_ID)),

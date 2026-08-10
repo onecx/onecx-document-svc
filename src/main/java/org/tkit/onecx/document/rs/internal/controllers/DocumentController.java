@@ -2,7 +2,6 @@ package org.tkit.onecx.document.rs.internal.controllers;
 
 import static jakarta.transaction.Transactional.TxType.NOT_SUPPORTED;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -127,7 +126,7 @@ public class DocumentController implements DocumentControllerApi {
     @Override
     public Response bulkUpdateDocument(List<DocumentCreateUpdateDTO> documentCreateUpdateDTO) {
         var documents = documentService.bulkUpdateDocuments(documentCreateUpdateDTO);
-        if (documents == null) {
+        if (documents.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.status(Response.Status.OK)
@@ -147,12 +146,6 @@ public class DocumentController implements DocumentControllerApi {
     @Override
     public Response showAllDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
-        if (Objects.nonNull(criteriaDTO.getStartDate()) && !criteriaDTO.getStartDate().isEmpty()) {
-            criteria.setStartDate(LocalDateTime.parse(criteriaDTO.getStartDate(), CUSTOM_DATE_TIME_FORMATTER));
-        }
-        if (Objects.nonNull(criteriaDTO.getEndDate()) && !criteriaDTO.getEndDate().isEmpty()) {
-            criteria.setEndDate(LocalDateTime.parse(criteriaDTO.getEndDate(), CUSTOM_DATE_TIME_FORMATTER));
-        }
         List<Document> documents = documentDAO.findAllDocumentsBySearchCriteria(criteria);
         return Response.ok(documentMapper.mapDocuments(documents))
                 .build();

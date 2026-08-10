@@ -488,48 +488,6 @@ class DocumentControllerTest extends AbstractTest {
     }
 
     @Test
-    @DisplayName("Search criteria. Finds documents by creation user.")
-    void testSuccessfulSearchCriteriaFindDocumentsByCreationUser() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setCreateBy(DOCUMENT_CREATION_USER);
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SEARCH_PATH);
-
-        response.then().statusCode(200);
-        DocumentPageResultDTO documents = response.as(DocumentPageResultDTO.class);
-        assertThat(documents.getStream()).hasSize(1);
-        assertThat(documents.getStream().stream())
-                .allMatch(el -> el.getCreationUser().equals(DOCUMENT_CREATION_USER));
-    }
-
-    @Test
-    @DisplayName("Search criteria. Finds all documents by creation user.")
-    void testSuccessfulSearchCriteriaFindAllDocumentsByCreationUser() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setCreateBy(DOCUMENT_CREATION_USER);
-        Response response = given()
-                .auth()
-                .oauth2(keycloakTestClient.getClientAccessToken(USER))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(criteria)
-                .when()
-                .post(SHOW_ALL_DOCUMENTS_PATH);
-
-        response.then().statusCode(200);
-        List<DocumentDetailDTO> documentList = Arrays.asList(response.getBody().as(DocumentDetailDTO[].class));
-        assertThat(documentList).hasSize(1);
-        assertThat(documentList.stream())
-                .allMatch(el -> el.getCreationUser().equals(DOCUMENT_CREATION_USER));
-    }
-
-    @Test
     @DisplayName("Search criteria. Finds documents by related object reference ID.")
     void testSuccessfulSearchCriteriaFindDocumentsByObjectRefId() {
         var criteria = new DocumentSearchCriteriaDTO();

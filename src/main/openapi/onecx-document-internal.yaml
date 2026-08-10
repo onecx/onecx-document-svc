@@ -861,12 +861,6 @@ components:
             type: string
         channelName:
           type: string
-        startDate:
-          type: string
-        endDate:
-          type: string
-        createBy:
-          type: string
         objectReferenceId:
           type: string
         objectReferenceType:

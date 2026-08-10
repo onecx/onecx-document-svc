@@ -49,6 +49,7 @@ public interface DocumentMapper {
 
     @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
+    @Mapping(target = "createBy", ignore = true)
     DocumentSearchCriteria map(DocumentSearchCriteriaDTO searchCriteriaDTO);
 
     @Mapping(target = "removeStreamItem", ignore = true)
