@@ -158,17 +158,4 @@ public class DocumentDAO extends AbstractDAO<Document> {
         return cq;
 
     }
-
-    public List<Document> findAllDocumentsBySearchCriteria(DocumentSearchCriteria criteria) {
-        if (criteria == null) {
-            throw new DAOException(ErrorKeys.ERROR_FIND_DOCUMENT_SEARCH_CRITERIA_REQUIRED, new NullPointerException());
-        }
-        try {
-            CriteriaQuery<Document> cq = createSearchCriteriaQuery(criteria);
-            TypedQuery<Document> typedQuery = em.createQuery(cq);
-            return typedQuery.getResultList();
-        } catch (Exception exception) {
-            throw new DAOException(ErrorKeys.ERROR_FIND_DOCUMENT_BY_CRITERIA, exception);
-        }
-    }
 }

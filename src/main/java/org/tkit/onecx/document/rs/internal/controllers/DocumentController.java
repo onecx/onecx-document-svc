@@ -25,7 +25,6 @@ import org.tkit.onecx.document.domain.daos.ChannelDAO;
 import org.tkit.onecx.document.domain.daos.DocumentDAO;
 import org.tkit.onecx.document.domain.daos.StorageUploadAuditDAO;
 import org.tkit.onecx.document.domain.models.entities.Channel;
-import org.tkit.onecx.document.domain.models.entities.Document;
 import org.tkit.onecx.document.domain.models.entities.StorageUploadAudit;
 import org.tkit.onecx.document.rs.internal.exceptions.DocumentException;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentMapper;
@@ -141,14 +140,6 @@ public class DocumentController implements DocumentControllerApi {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.status(Response.Status.NO_CONTENT).build();
-    }
-
-    @Override
-    public Response showAllDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
-        DocumentSearchCriteria criteria = documentMapper.map(criteriaDTO);
-        List<Document> documents = documentDAO.findAllDocumentsBySearchCriteria(criteria);
-        return Response.ok(documentMapper.mapDocuments(documents))
-                .build();
     }
 
     @ServerExceptionMapper

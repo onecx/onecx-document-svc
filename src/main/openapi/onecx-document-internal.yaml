@@ -386,34 +386,6 @@ paths:
                   $ref: '#/components/schemas/StorageUploadAudit'
         "404":
           description: Not found
-  /internal/document/search/show-all-documents:
-    post:
-      security:
-        - oauth2: [ ocx-doc:all, ocx-doc:read]
-      tags:
-        - DocumentController
-      description: Gets all documents by criteria
-      operationId: showAllDocumentsByCriteria
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DocumentSearchCriteria"
-      responses:
-        "200":
-          description: The corresponding documents resource
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DocumentDetail'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/document/{id}:
     get:
       security:
