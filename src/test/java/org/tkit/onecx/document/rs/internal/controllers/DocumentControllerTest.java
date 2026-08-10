@@ -36,10 +36,8 @@ class DocumentControllerTest extends AbstractTest {
     private static final String BASE_PATH = "/internal/document";
     private static final String SEARCH_PATH = BASE_PATH + "/search";
     private static final String EXISTING_DOCUMENT_ID = "51";
-    private static final String EXISTING_DOCUMENT_ID_WITHOUT_ATTACHMENTS = "53";
     private static final String NONEXISTENT_DOCUMENT_ID = "1000";
     private static final String NAME_OF_DOCUMENT_1 = "document_1";
-    private static final String DOCUMENT_CREATION_USER = "test";
     private static final String DESCRIPTION_OF_DOCUMENT_1 = "description_1";
     private static final String VERSION_OF_DOCUMENT_1 = "v_1";
     private static final LifeCycleStateDTO STATUS_OF_DOCUMENT_1 = LifeCycleStateDTO.DRAFT;

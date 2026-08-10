@@ -1,6 +1,5 @@
 package org.tkit.onecx.document.domain.criteria;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.tkit.onecx.document.domain.models.enums.LifeCycleState;
@@ -37,12 +36,6 @@ public class DocumentSearchCriteria {
     /**
      * The number of page.
      */
-
-    private LocalDateTime startDate;
-
-    private LocalDateTime endDate;
-
-    private String createBy;
 
     private String objectReferenceId;
 
