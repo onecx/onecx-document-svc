@@ -1,5 +1,7 @@
 package org.tkit.onecx.document.rs.internal.controllers;
 
+import static jakarta.transaction.Transactional.TxType.NOT_SUPPORTED;
+
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,6 +15,7 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.tkit.onecx.document.domain.daos.DocumentSpecificationDAO;
 import org.tkit.onecx.document.rs.internal.mappers.DocumentSpecificationMapper;
 import org.tkit.onecx.document.rs.internal.mappers.ExceptionMapper;
+import org.tkit.onecx.document.rs.internal.services.DocumentSpecificationService;
 import org.tkit.quarkus.jpa.exceptions.ConstraintException;
 
 import gen.org.tkit.onecx.document.rs.internal.DocumentSpecificationControllerApi;
@@ -20,6 +23,7 @@ import gen.org.tkit.onecx.document.rs.internal.model.DocumentSpecificationCreate
 import gen.org.tkit.onecx.document.rs.internal.model.ProblemDetailResponseDTO;
 
 @ApplicationScoped
+@Transactional(value = NOT_SUPPORTED)
 public class DocumentSpecificationController implements DocumentSpecificationControllerApi {
 
     @Inject
@@ -29,13 +33,15 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
     DocumentSpecificationMapper documentSpecificationMapper;
 
     @Inject
+    DocumentSpecificationService documentSpecificationService;
+
+    @Inject
     ExceptionMapper exceptionMapper;
 
     @Override
-    @Transactional
     public Response createDocumentSpecification(DocumentSpecificationCreateUpdateDTO documentSpecificationCreateUpdateDTO) {
-        var documentSpecification = documentSpecificationDAO
-                .create(documentSpecificationMapper.map(documentSpecificationCreateUpdateDTO));
+        var documentSpecification = documentSpecificationService
+                .createDocumentSpecification(documentSpecificationCreateUpdateDTO);
         return Response.status(Response.Status.CREATED)
                 .entity(documentSpecificationMapper.mapToDTO(documentSpecification))
                 .build();
@@ -61,28 +67,24 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
     }
 
     @Override
-    @Transactional
     public Response deleteDocumentSpecificationById(String id) {
-        var documentSpecification = documentSpecificationDAO.findById(id);
-        if (Objects.nonNull(documentSpecification)) {
-            documentSpecificationDAO.delete(documentSpecification);
+        boolean deleted = documentSpecificationService.deleteDocumentSpecificationById(id);
+        if (deleted) {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Override
-    @Transactional
     public Response updateDocumentSpecificationById(String id,
             DocumentSpecificationCreateUpdateDTO documentSpecificationCreateUpdateDTO) {
-        var documentSpecification = documentSpecificationDAO.findById(id);
+        var documentSpecification = documentSpecificationService.updateDocumentSpecificationById(id,
+                documentSpecificationCreateUpdateDTO);
         if (Objects.isNull(documentSpecification)) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        documentSpecificationMapper.update(documentSpecificationCreateUpdateDTO, documentSpecification);
         return Response.status(Response.Status.OK)
-                .entity(documentSpecificationMapper
-                        .mapToDTO(documentSpecificationDAO.update(documentSpecification)))
+                .entity(documentSpecificationMapper.mapToDTO(documentSpecification))
                 .build();
     }
 
@@ -95,5 +97,4 @@ public class DocumentSpecificationController implements DocumentSpecificationCon
     public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
         return exceptionMapper.constraint(ex);
     }
-
 }

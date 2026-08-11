@@ -17,9 +17,10 @@ paths:
         - oauth2: [ ocx-doc:all, ocx-doc:read ]
       tags:
         - DocumentController
-      description: Gets documents by criteria
-      operationId: getDocumentByCriteria
+      description: Search documents by criteria
+      operationId: searchDocumentsByCriteria
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -341,7 +342,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Channel'
   /internal/document/delete-bulk-documents:
-    delete:
+    post:
       security:
         - oauth2: [ ocx-doc:all, ocx-doc:delete]
       tags:
@@ -385,34 +386,6 @@ paths:
                   $ref: '#/components/schemas/StorageUploadAudit'
         "404":
           description: Not found
-  /internal/document/search/show-all-documents:
-    post:
-      security:
-        - oauth2: [ ocx-doc:all, ocx-doc:read]
-      tags:
-        - DocumentController
-      description: Gets all documents by criteria
-      operationId: showAllDocumentsByCriteria
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DocumentSearchCriteria"
-      responses:
-        "200":
-          description: The corresponding documents resource
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DocumentDetail'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetailResponse'
   /internal/document/{id}:
     get:
       security:
@@ -860,12 +833,6 @@ components:
             type: string
         channelName:
           type: string
-        startDate:
-          type: string
-        endDate:
-          type: string
-        createBy:
-          type: string
         objectReferenceId:
           type: string
         objectReferenceType:
@@ -1104,64 +1071,6 @@ components:
           type: string
         validFor:
           $ref: '#/components/schemas/TimePeriod'
-    RestException:
-      type: object
-      properties:
-        status:
-          $ref: '#/components/schemas/Status'
-        errorCode:
-          type: object
-        parameters:
-          type: array
-          items:
-            type: object
-        namedParameters:
-          type: object
-          additionalProperties:
-            type: object
-    Status:
-      enum:
-        - OK
-        - CREATED
-        - ACCEPTED
-        - NO_CONTENT
-        - RESET_CONTENT
-        - PARTIAL_CONTENT
-        - MOVED_PERMANENTLY
-        - FOUND
-        - SEE_OTHER
-        - NOT_MODIFIED
-        - USE_PROXY
-        - TEMPORARY_REDIRECT
-        - BAD_REQUEST
-        - UNAUTHORIZED
-        - PAYMENT_REQUIRED
-        - FORBIDDEN
-        - NOT_FOUND
-        - METHOD_NOT_ALLOWED
-        - NOT_ACCEPTABLE
-        - PROXY_AUTHENTICATION_REQUIRED
-        - REQUEST_TIMEOUT
-        - CONFLICT
-        - GONE
-        - LENGTH_REQUIRED
-        - PRECONDITION_FAILED
-        - REQUEST_ENTITY_TOO_LARGE
-        - REQUEST_URI_TOO_LONG
-        - UNSUPPORTED_MEDIA_TYPE
-        - REQUESTED_RANGE_NOT_SATISFIABLE
-        - EXPECTATION_FAILED
-        - PRECONDITION_REQUIRED
-        - TOO_MANY_REQUESTS
-        - REQUEST_HEADER_FIELDS_TOO_LARGE
-        - INTERNAL_SERVER_ERROR
-        - NOT_IMPLEMENTED
-        - BAD_GATEWAY
-        - SERVICE_UNAVAILABLE
-        - GATEWAY_TIMEOUT
-        - HTTP_VERSION_NOT_SUPPORTED
-        - NETWORK_AUTHENTICATION_REQUIRED
-      type: string
     StorageUploadAudit:
       type: object
       properties:
@@ -1225,19 +1134,6 @@ components:
           $ref: '#/components/schemas/OffsetDateTime'
         endDateTime:
           $ref: '#/components/schemas/OffsetDateTime'
-    Traceable:
-      type: object
-      properties:
-        createdBy:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        lastModifiedBy:
-          type: string
-        lastModifiedDate:
-          type: string
-          format: date-time
     AttachmentMetadataUpload:
       type: object
       properties:

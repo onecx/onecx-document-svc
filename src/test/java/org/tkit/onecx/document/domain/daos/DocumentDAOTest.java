@@ -74,21 +74,6 @@ class DocumentDAOTest {
     }
 
     @Test
-    @DisplayName("Search criteria. Fails to perform a search of all documents with null criteria.")
-    void testFailedShowAllDocumentsWithNullCriteria() {
-        DocumentDAO documentDAO = new DocumentDAO() {
-            @Override
-            protected EntityManager getEntityManager() {
-                return null;
-            }
-        };
-        DocumentSearchCriteria criteria = null;
-        DAOException exception = assertThrows(DAOException.class,
-                () -> documentDAO.findAllDocumentsBySearchCriteria(criteria));
-        assertEquals(DocumentDAO.ErrorKeys.ERROR_FIND_DOCUMENT_SEARCH_CRITERIA_REQUIRED, exception.getMessageKey());
-    }
-
-    @Test
     @DisplayName("Search criteria. Test fails when we mock an exception.")
     void testFailedSearchWithCriteriaMockException() {
         DocumentDAO documentDAO = new DocumentDAO() {
@@ -104,28 +89,6 @@ class DocumentDAOTest {
 
         DAOException exception = assertThrows(DAOException.class,
                 () -> documentDAO.findBySearchCriteria(criteria));
-
-        assertEquals(DocumentDAO.ErrorKeys.ERROR_FIND_DOCUMENT_BY_CRITERIA, exception.getMessageKey());
-        assertNotNull(exception.getCause());
-        assertTrue(exception.getCause() instanceof RuntimeException);
-    }
-
-    @Test
-    @DisplayName("Search criteria. Test fails when we search all documents but mock an exception.")
-    void testFailedShowAllDocumentsWithCriteriaMockException() {
-        DocumentDAO documentDAO = new DocumentDAO() {
-            @Override
-            protected EntityManager getEntityManager() {
-                return null;
-            }
-        };
-        DocumentSearchCriteria criteria = new DocumentSearchCriteria();
-
-        EntityManager entityManagerMock = Mockito.mock(EntityManager.class);
-        Mockito.when(entityManagerMock.getCriteriaBuilder()).thenThrow(new RuntimeException());
-
-        DAOException exception = assertThrows(DAOException.class,
-                () -> documentDAO.findAllDocumentsBySearchCriteria(criteria));
 
         assertEquals(DocumentDAO.ErrorKeys.ERROR_FIND_DOCUMENT_BY_CRITERIA, exception.getMessageKey());
         assertNotNull(exception.getCause());
