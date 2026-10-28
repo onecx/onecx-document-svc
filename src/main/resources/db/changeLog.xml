@@ -5,4 +5,5 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <include relativeToChangelogFile="true" file="v1/2026-05-15-init-tables.xml" />
     <include relativeToChangelogFile="true" file="v1/2026-05-04-remove-supported-mimetypes.xml" />
+    <include relativeToChangelogFile="true" file="v1/2026-10-28-add-document-tags-constraint.xml" />
 </databaseChangeLog>
